@@ -1,12 +1,17 @@
-# IC35 Sync
+# Siemens IC35 Sync
 
 Windows-Desktop-Client für den Siemens IC35: Kontakte mit Thunderbird/CardDAV,
 Kalender und Aufgaben mit Google, Memos mit einem lokalen Notizordner synchronisieren.
 
-**3.3.0a3 ist eine Vorabversion zur GitHub-Vorbereitung.** Grundlage ist der
-persönlich erprobte Client v3.2.5. Die bereinigte Oberfläche und der neue Kalender-
-Erststart brauchen noch einen Test an echter Hardware. Dies ist keine offizielle
-Siemens-, Google- oder Thunderbird-Anwendung.
+**Aktuelle Version: 3.3.0a3 (Vorabversion).** Google-Anmeldung und ausgewählte
+Aufgaben-Sync-Abläufe wurden mit einem echten IC35 getestet. Die öffentliche
+Google-Prüfung für Kalender- und Aufgabenberechtigungen ist noch nicht abgeschlossen.
+Dies ist ein unabhängiges Projekt, keine offizielle Siemens-, Google- oder
+Thunderbird-Anwendung.
+
+[Projektwebsite](https://ic35.thundersoos.cc/) ·
+[Downloads und Releases](https://github.com/ThunderSooS/ic35thunderbird/releases) ·
+[Änderungen](CHANGELOG.md)
 
 ## Funktionen
 
@@ -21,15 +26,35 @@ Siemens-, Google- oder Thunderbird-Anwendung.
 Voraussetzungen: Windows, Python **3.12** inklusive Tcl/Tk und Python Launcher,
 IC35-SyncStation sowie ein funktionierender serieller Anschluss/USB-Seriell-Treiber.
 
-1. Source-ZIP vollständig entpacken.
+1. Das **Programmpaket mit Google-Anmeldung** aus den Release-Anhängen herunterladen
+   und vollständig in einen eigenen Ordner entpacken. Für v3.3.0a3 heißt es
+   `IC35-Sync-3.3.0a3-Google-Login-Test.zip`.
 2. `install.bat` starten. Abhängigkeiten werden in eine lokale `.venv` installiert.
 3. `start.bat` starten und den COM-Port auswählen.
 4. Google-Ziele und gegebenenfalls den Notizordner einrichten.
 5. **ALLES SYNCHRONISIEREN** anklicken und bei Aufforderung die SyncStation drücken.
 
-Für Google ist in dieser Entwicklerfassung noch eine eigene Desktop-OAuth-Datei
-nötig: [Google-Einrichtung](docs/GOOGLE_SETUP.md). Ein zentral verifizierter
-Anmeldeclient wird nicht vorgetäuscht und keine persönliche Anmeldung mitgeliefert.
+### Google verbinden
+
+Über **Google verbinden** öffnet sich die Anmeldung im Browser. Mit dem eigenen
+Google-Konto anmelden, die Kalenderberechtigungen freigeben und einen Kalender
+auswählen. Unter **Aufgaben-Ziel** Google Tasks verbinden, die Aufgabenliste
+auswählen und die Teilnahme am Gesamtabgleich aktivieren. Kalender und Tasks
+verwenden derzeit getrennte Freigaben; für beide dasselbe Google-Konto verwenden.
+
+Das Programmpaket enthält `google_oauth_client.json` neben `start.bat`. Nutzer
+müssen diese Datei nicht auswählen und kein eigenes Cloud-Projekt einrichten.
+Die automatisch von GitHub angebotenen **Source code**-Archive enthalten nur
+den Repository-Stand und können diese Konfiguration nicht enthalten. Falls die
+App eine fehlende Herausgeber-Konfiguration meldet, das Programmpaket aus den
+Release-Anhängen verwenden und vollständig entpacken.
+
+Das Google-Branding ist bestätigt. Die zusätzliche Datenzugriffsprüfung steht
+noch aus; bei der Anmeldung kann daher **„Google hat diese App nicht überprüft“**
+erscheinen. Diese Vorabversion ist noch keine vollständig von Google überprüfte
+Veröffentlichung.
+
+### Datenordner und Updates
 
 Die Vorabversion verwendet `%APPDATA%\IC35SyncPreview`, getrennt vom alten
 `IC35ThunderbirdSync`-Ordner. Es gibt **keine automatische Migration**. Nicht
@@ -37,6 +62,16 @@ beide Programme gleichzeitig starten: Radicale nutzt auf beiden Seiten Port 5232
 Beim neuen Erstabgleich werden Bestände vereinigt; vorhandene Löschhistorie der
 alten Installation wird nicht automatisch übernommen. Vor einem Test mit echten
 Daten ein manuelles Vollbackup erstellen und die alten State-Dateien sichern.
+
+Updates innerhalb der 3.3-Vorabversion nutzen denselben Preview-Datenordner und
+behalten dort gespeicherte Anmeldungen und Zuordnungen. Dazu die App schließen,
+das neue Paket separat entpacken und dessen `install.bat` sowie `start.bat` verwenden.
+Den Datenordner und offene Operationsjournale nicht für ein Update löschen.
+
+Vollbackups werden nur auf Anforderung über **Nur Backup** erstellt und liegen
+in `%APPDATA%\IC35SyncPreview\backups`. Kleine Sicherungen einzelner
+Sync-Vorgänge und Operationsjournale bleiben Teil des Abgleichs.
+Eine Wiederherstellungsfunktion für Geräte-Vollbackups ist noch nicht vorhanden.
 
 ## Thunderbird-Kontakte
 
@@ -65,6 +100,17 @@ Nur Google Tasks kann über denselben Button ohne Kalender laufen.
 
 ## Entwickeln und prüfen
 
+Für v3.3.0a3 sind **37 Offline-Tests** erfolgreich. Im Test am Gerät wurden
+die Browser-Anmeldung für Kalender und Tasks, die Übernahme einer Google-Aufgabe
+auf den IC35, die Erledigung vom IC35 nach Google und die Löschung von Google
+zum IC35 bestätigt. Der Gesamtlauf wurde erfolgreich abgeschlossen. Das ist
+keine vollständige Prüfung aller Kalender-, Kontakt- und Memo-Sonderfälle.
+
+Aufgaben ohne Datum: Der IC35 kann automatisch Datumswerte aus dem Jahr 2000
+einsetzen. v3.3.0a3 berücksichtigt den beobachteten Fall beim Kontrolllesen und
+verhindert für entsprechend verknüpfte Google-Aufgaben die Übertragung eines
+erfundenen Fälligkeitsdatums. Siehe [Details zur Korrektur](docs/TASKS_UNDATED_FIX.md).
+
 ```text
 python -m unittest discover -s tests -p "test_*.py" -v
 python scripts/check_release.py
@@ -75,6 +121,16 @@ Die Offline-Tests verwenden simulierte Gerätedaten. Für GUI-/Google-Tests werd
 die normalen Abhängigkeiten benötigt. `IC35_SYNC_DATA_DIR` kann für isolierte Tests
 einen eigenen Datenordner vorgeben. Niemals fremde Benutzer- oder Google-Tokens verwenden.
 
+`scripts/build_release.py` erstellt ein Quellpaket ohne OAuth-Konfiguration.
+Für ein Programmpaket mit einem ausdrücklich dafür vorgesehenen Desktop-Client:
+
+```text
+python scripts/build_login_test.py PFAD_ZUR_DESKTOP_CLIENT_JSON
+```
+
+Persönliche Tokens (`google_token.json`, `google_tasks_token.json`), Sync-State,
+Protokolle und Backups gehören weder ins Repository noch in Release-Downloads.
+
 [Beitragen](CONTRIBUTING.md) · [Sicherheit](SECURITY.md) ·
 [Datenschutz](docs/PRIVACY.md) · [Veröffentlichungsstand](docs/RELEASE_READINESS.md)
 
@@ -83,6 +139,3 @@ einen eigenen Datenordner vorgeben. Niemals fremde Benutzer- oder Google-Tokens 
 GNU GPL Version 2, siehe [LICENSE](LICENSE) und
 [Herkunftshinweise](THIRD_PARTY_NOTICES.md). Bereitstellung ohne Gewährleistung.
 
-Google-Anmeldung: keine Dateiauswahl mehr. Für neue Nutzer muss der Herausgeber
-die Desktop-OAuth-Konfiguration mitliefern; diese Source-Fassung enthält sie
-noch nicht. Siehe [Google-Einrichtung](docs/GOOGLE_SETUP.md).
