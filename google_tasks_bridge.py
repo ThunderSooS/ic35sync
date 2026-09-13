@@ -132,6 +132,16 @@ def device_snapshot(db):
     return result
 
 
+def bound_semantic(fields, binding=None):
+    result = semantic(fields)
+    if (binding and not binding['semantic'].get('due')
+            and binding['fields'].get('Start') == '20000101'
+            and binding['fields'].get('Ende') == '20001231'
+            and fields.get('Start') == '20000101' and fields.get('Ende') == '20001231'):
+        result['due'] = ''
+    return result
+
+
 def build_plan(bindings, device, remote):
     active = {k: t for k, t in remote.items() if not t.get("deleted")}
     # Do not flatten hierarchies or delete a parent and thereby affect its children.
@@ -164,7 +174,7 @@ def build_plan(bindings, device, remote):
                 continue
             kind = "delete_device"
         else:
-            ls, rs = semantic(left), google_semantic(right)
+            ls, rs = bound_semantic(left, binding), google_semantic(right)
             if ls != old and rs != old and ls != rs:
                 conflicts.append(f"{left['Betreff']}: beide Seiten geändert")
                 continue
@@ -248,7 +258,7 @@ def recover_device_create(directory, state, device, remote):
     for bound_rid, binding in state["bindings"].items():
         if (bound_rid == rid and binding["task_id"] != tid) or (bound_rid != rid and binding["task_id"] == tid):
             return
-    state["bindings"][rid] = {"task_id": tid, "fields": device[rid], "semantic": semantic(device[rid])}
+    state["bindings"][rid] = {"task_id": tid, "fields": device[rid], "semantic": google_semantic(task)}
     atomic_json(directory / "state.json", state)
     atomic_json(directory / "recovered_operation.json", {"pending": pending, "record_id": rid})
     pending_path.unlink()
@@ -300,7 +310,7 @@ def apply(plan, ser, export, logger=print):
             elif kind == "delete_device":
                 tp.delete(ser, fd, int(rid))
             elif kind == "write_google":
-                desired = semantic(op["fields"])
+                desired = bound_semantic(op["fields"], state['bindings'].get(rid))
                 if tid:
                     # Patch only changed common fields; preserve Google-only attributes.
                     wanted, previous = body(desired), body(google_semantic(task))
@@ -328,7 +338,7 @@ def apply(plan, ser, export, logger=print):
                 state["bindings"].pop(rid, None)
             else:
                 state["bindings"][rid] = {"task_id": tid, "fields": op["fields"],
-                                          "semantic": semantic(op["fields"])}
+                                          "semantic": google_semantic(task) if task else semantic(op["fields"])}
             atomic_json(directory / "state.json", state)
             (directory / "pending.json").unlink(missing_ok=True)
             if kind in stats:

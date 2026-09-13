@@ -38,6 +38,10 @@ def values(rec):
 
 def matches_written(actual, expected):
     expected = dict(expected)
+    # Observed DCS15 1.51 defaults when both task dates are empty.
+    if (not expected.get("Start") and not expected.get("Ende")
+            and actual.get("Start") == "20000101" and actual.get("Ende") == "20001231"):
+        expected.update(Start="20000101", Ende="20001231")
     # Real IC35 firmware fills an empty Start with Ende when creating a task.
     if not expected.get("Start") and actual.get("Start") == expected.get("Ende"):
         expected["Start"] = actual["Start"]

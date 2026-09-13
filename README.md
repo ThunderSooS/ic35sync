@@ -3,7 +3,7 @@
 Windows-Desktop-Client für den Siemens IC35: Kontakte mit Thunderbird/CardDAV,
 Kalender und Aufgaben mit Google, Memos mit einem lokalen Notizordner synchronisieren.
 
-**3.3.0a1 ist eine Vorabversion zur GitHub-Vorbereitung.** Grundlage ist der
+**3.3.0a3 ist eine Vorabversion zur GitHub-Vorbereitung.** Grundlage ist der
 persönlich erprobte Client v3.2.5. Die bereinigte Oberfläche und der neue Kalender-
 Erststart brauchen noch einen Test an echter Hardware. Dies ist keine offizielle
 Siemens-, Google- oder Thunderbird-Anwendung.
@@ -82,3 +82,7 @@ einen eigenen Datenordner vorgeben. Niemals fremde Benutzer- oder Google-Tokens 
 
 GNU GPL Version 2, siehe [LICENSE](LICENSE) und
 [Herkunftshinweise](THIRD_PARTY_NOTICES.md). Bereitstellung ohne Gewährleistung.
+
+Google-Anmeldung: keine Dateiauswahl mehr. Für neue Nutzer muss der Herausgeber
+die Desktop-OAuth-Konfiguration mitliefern; diese Source-Fassung enthält sie
+noch nicht. Siehe [Google-Einrichtung](docs/GOOGLE_SETUP.md).

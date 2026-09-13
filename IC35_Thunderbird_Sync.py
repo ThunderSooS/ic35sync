@@ -25,8 +25,9 @@ import sync_sounds
 import google_tasks_bridge as gtasks
 import direct_tasks_sync
 import calendar_setup
+import google_app_setup
 from bridge import ensure_radicale_storage, fetch_storage_snapshot, contact_semantic_to_ic35_fields, mark_address_resource_ic35_id_dav, remember_address_binding, publish_contacts_dav_nolist, analyze_contact_two_way, contact_record_to_semantic, delete_address_resource_dav
-APP_VERSION = '3.3.0a1'
+APP_VERSION = '3.3.0a3'
 APP_NAME = 'Siemens IC35 Sync'
 HOST = '127.0.0.1'
 RADICALE_PORT = 5232
@@ -38,7 +39,7 @@ LOGS = APPDATA / 'logs'
 BACKUPS = APPDATA / 'backups'
 REPORTS = APPDATA / 'reports'
 STATE = APPDATA / 'sync_state_v0.9.1.json'
-GOOGLE_CREDENTIALS = APPDATA / 'google_credentials.json'
+GOOGLE_CREDENTIALS = google_app_setup.credentials_path(Path(__file__).resolve().parent, APPDATA)
 GOOGLE_TOKEN = APPDATA / 'google_token.json'
 GOOGLE_STATE = calendar_setup.selected_state_path(APPDATA)
 for p in (APPDATA, STORAGE, EXPORTS, LOGS, BACKUPS, REPORTS):
@@ -447,7 +448,7 @@ class App(tk.Tk):
             messagebox.showerror('Google Kalender', "Google Kalender ist noch nicht vollständig verbunden. Bitte einmal unter 'Einstellungen & Werkzeuge' auf 'Google verbinden' klicken.")
             return
         self._set_stage('Vorbereitung …')
-        self.log('Starte FINALEN Gesamt-Sync v3.3.0a1 …')
+        self.log(f'Starte FINALEN Gesamt-Sync v{APP_VERSION} …')
         self._start_worker(self._full_sync_worker, port)
 
     @staticmethod
@@ -481,8 +482,8 @@ class App(tk.Tk):
     def _full_sync_worker(self, port):
         run_lock = None
         stamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        log_file = LOGS / f'IC35_FullSync_v3.3.0a1_{stamp}.log'
-        report_path = REPORTS / f'FullSync_v3.3.0a1_{stamp}.json'
+        log_file = LOGS / f'IC35_FullSync_v{APP_VERSION}_{stamp}.log'
+        report_path = REPORTS / f'FullSync_v{APP_VERSION}_{stamp}.json'
         work_log = self._make_file_logger(log_file)
         ser = None
         sync_started = datetime.now(timezone.utc).isoformat()
@@ -806,11 +807,7 @@ class App(tk.Tk):
     def connect_google_calendar(self):
         global GOOGLE_STATE
         try:
-            if not GOOGLE_CREDENTIALS.exists():
-                src = filedialog.askopenfilename(title='Google Desktop-OAuth-Datei auswählen', filetypes=[('JSON', '*.json')])
-                if not src:
-                    return
-                gcal.install_credentials(Path(src), GOOGLE_CREDENTIALS)
+            google_app_setup.require_client(GOOGLE_CREDENTIALS)
             svc = gcal.service(GOOGLE_CREDENTIALS, GOOGLE_TOKEN, interactive=True)
             calendars = calendar_setup.writable_calendars(svc)
             if not calendars:
@@ -919,15 +916,11 @@ class App(tk.Tk):
         busy = [False]
 
         def load():
-            if not GOOGLE_CREDENTIALS.exists():
-                source = filedialog.askopenfilename(parent=dialog, title='Google Desktop-OAuth-Datei auswählen (credentials.json)', filetypes=[('JSON-Datei', '*.json')])
-                if not source:
-                    return
-                try:
-                    gcal.install_credentials(Path(source), GOOGLE_CREDENTIALS)
-                except Exception as exc:
-                    messagebox.showerror('Google Tasks', str(exc), parent=dialog)
-                    return
+            try:
+                google_app_setup.require_client(GOOGLE_CREDENTIALS)
+            except Exception as exc:
+                messagebox.showerror('Google Tasks', str(exc), parent=dialog)
+                return
             busy[0] = True
             load_btn.config(state='disabled')
             save_btn.config(state='disabled')
