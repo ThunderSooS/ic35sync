@@ -5,11 +5,11 @@ import re
 
 ROOT = Path(__file__).resolve().parents[1]
 ROOT_FILES = {
-    'IC35_Thunderbird_Sync.py', 'bridge.py', 'calendar_setup.py', 'direct_tasks_sync.py',
+    'IC35_Thunderbird_Sync.py', 'bridge.py', 'calendar_setup.py', 'google_app_setup.py', 'direct_tasks_sync.py',
     'google_calendar_bridge.py', 'google_tasks_bridge.py', 'ic35_protocol.py',
     'manager_protocol.py', 'memo_protocol.py', 'memo_sync.py', 'todo_protocol.py',
     'sync_sounds.py', 'radicale_windows_launcher.py', 'start.bat', 'install.bat',
-    'requirements.txt', 'README.md', 'LICENSE', 'THIRD_PARTY_NOTICES.md',
+    'requirements.txt', 'README.md', 'README.en.md', 'LICENSE', 'THIRD_PARTY_NOTICES.md',
     'CONTRIBUTING.md', 'SECURITY.md', 'CHANGELOG.md', '.gitignore', '.gitattributes',
 }
 

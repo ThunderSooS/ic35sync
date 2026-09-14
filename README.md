@@ -1,5 +1,13 @@
 # Siemens IC35 Sync
 
+**Deutsch** · [English](README.en.md)
+
+> 🚧 **Vorabversion – Google-Verifizierung in Arbeit**
+>
+> Das Google-Branding ist bestätigt. Die Prüfung der Kalender- und
+> Aufgabenberechtigungen wird vorbereitet; das Demo-Video steht noch aus.
+> Fehlerberichte sind über die GitHub-Issues willkommen.
+
 Windows-Desktop-Client für den Siemens IC35: Kontakte mit Thunderbird/CardDAV,
 Kalender und Aufgaben mit Google, Memos mit einem lokalen Notizordner synchronisieren.
 
@@ -8,6 +16,9 @@ Aufgaben-Sync-Abläufe wurden mit einem echten IC35 getestet. Die öffentliche
 Google-Prüfung für Kalender- und Aufgabenberechtigungen ist noch nicht abgeschlossen.
 Dies ist ein unabhängiges Projekt, keine offizielle Siemens-, Google- oder
 Thunderbird-Anwendung.
+
+Die Programmoberfläche ist derzeit deutschsprachig. Diese Dokumentation ist
+auf Deutsch und Englisch verfügbar.
 
 [Projektwebsite](https://ic35.thundersoos.cc/) ·
 [Downloads und Releases](https://github.com/ThunderSooS/ic35thunderbird/releases) ·
