@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import hashlib
 import shutil
+import private_storage
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -59,7 +60,7 @@ def get_credentials(credentials_file: Path, token_file: Path, interactive: bool 
     if token_file.exists():
         # IMPORTANT: Load the scopes exactly as stored in the token file.
         # Do not pass SCOPES here.
-        creds = Credentials.from_authorized_user_file(str(token_file))
+        creds = Credentials.from_authorized_user_info(private_storage.read_json(token_file, migrate=True))
         if not creds.has_scopes(SCOPES):
             creds = None
             try:
@@ -105,9 +106,11 @@ def get_credentials(credentials_file: Path, token_file: Path, interactive: bool 
             )
 
         token_file.parent.mkdir(parents=True, exist_ok=True)
-        token_file.write_text(creds.to_json(), encoding="utf-8")
+        private_storage.write_json(token_file, json.loads(creds.to_json()))
         scope_marker.write_text(required_scope_version, encoding="utf-8")
 
+    if creds:
+        private_storage.write_json(token_file, json.loads(creds.to_json()))
     return creds
 
 def service(credentials_file: Path, token_file: Path, interactive: bool = True):

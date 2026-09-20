@@ -172,7 +172,7 @@ def _read_backup_info(ser, label: str, logger=print, timeout: float = 1.0) -> by
     return info
 
 
-def backup_database(ser, destination: Path, logger=print, progress=None) -> dict:
+def backup_database(ser, destination: Path, logger=print, progress=None, protected=False) -> dict:
     """Create the documented database.org-compatible full IC35 backup.
 
     This is read-only with respect to the IC35 database. PC->IC35 traffic is
@@ -210,9 +210,13 @@ def backup_database(ser, destination: Path, logger=print, progress=None) -> dict
             f"Backup hat falsche Gesamtlänge {len(payload)} statt {BACKUP_TOTAL_SIZE} Byte."
         )
 
-    tmp = destination.with_suffix(destination.suffix + ".tmp")
-    tmp.write_bytes(payload)
-    tmp.replace(destination)
+    if protected:
+        import private_storage
+        private_storage.write_bytes(destination, payload)
+    else:
+        tmp = destination.with_suffix(destination.suffix + ".tmp")
+        tmp.write_bytes(payload)
+        tmp.replace(destination)
     logger(f"Backup gespeichert: {destination}")
     logger(f"Backup-Größe: {len(payload)} Byte (erwartet {BACKUP_TOTAL_SIZE})")
     return {

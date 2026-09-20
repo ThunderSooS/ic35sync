@@ -1,5 +1,14 @@
 # Siemens IC35 Sync
 
+## Windows installer alpha 3.3.0a8
+
+Install `IC35-Sync-3.3.0a8-Alpha-Setup.exe`, then launch **Siemens IC35 Sync Alpha**
+from the Start menu. Python and dependencies are included. Existing data in
+`%APPDATA%\IC35SyncPreview` is preserved, including during uninstall.
+Hardware tests of the previous Python version still need repeating with the
+bundled executable. Google verification remains pending. The installer is unsigned.
+The Python setup instructions below apply to running from source.
+
 [Deutsch](README.md) · **English**
 
 > 🚧 **Pre-release – Google verification in progress**
@@ -12,7 +21,7 @@ A Windows desktop client for the Siemens IC35: synchronize contacts with
 Thunderbird/CardDAV, calendars and tasks with Google, and memos with a local
 notes folder.
 
-**Current version: 3.3.0a3 (pre-release).** Google sign-in and selected task
+**Current version: 3.3.0a8 (installer alpha).** Google sign-in and selected task
 synchronization workflows have been tested with a real IC35. Google's public
 verification of Calendar and Tasks permissions has not yet been completed.
 This is an independent project, not an official Siemens, Google, or Thunderbird
@@ -40,8 +49,8 @@ Requirements: Windows, Python **3.12** including Tcl/Tk and the Python Launcher,
 an IC35 SyncStation, and a working serial connection or USB-to-serial driver.
 
 1. Download the **application package with Google sign-in** from the release
-   attachments and extract it completely into its own folder. For v3.3.0a3,
-   the filename is `IC35-Sync-3.3.0a3-Google-Login-Test.zip`.
+   attachments and extract it completely into its own folder. For v3.3.0a4,
+   the filename is `IC35-Sync-3.3.0a4-Google-Login-Test.zip`.
 2. Run `install.bat`. Dependencies are installed in a local `.venv`.
 3. Run `start.bat` and select the COM port.
 4. Configure the Google destinations and, if needed, the notes folder.
@@ -113,6 +122,15 @@ Google Tasks alone can run through the same sync button without a calendar.
 - **Restoring full backups is not yet implemented.**
 
 ## Development and validation
+
+Starting with 3.3.0a4, tokens are migrated on load to Windows DPAPI protection.
+New backups, raw exports, reports and sync logs are encrypted. Protected files
+normally require the same Windows account and computer; the new export button
+creates an explicit plaintext copy when needed. Older versions cannot read
+migrated tokens. Existing archives, live sync state, Radicale storage and notes
+are not all encrypted. See [scope and limitations (German)](docs/LOCAL_DATA_PROTECTION.md).
+The hardware results below refer to 3.3.0a3. Hardware testing and a real Google
+sign-in after token migration are still pending for 3.3.0a4.
 
 For v3.3.0a3, **37 offline tests** passed. Testing with a real device confirmed
 browser sign-in for Calendar and Tasks, transferring a Google task to the IC35,

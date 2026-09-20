@@ -11,7 +11,7 @@
 Windows-Desktop-Client für den Siemens IC35: Kontakte mit Thunderbird/CardDAV,
 Kalender und Aufgaben mit Google, Memos mit einem lokalen Notizordner synchronisieren.
 
-**Aktuelle Version: 3.3.0a3 (Vorabversion).** Google-Anmeldung und ausgewählte
+**Aktuelle Version: 3.3.0a8 (Installer-Alpha).** Google-Anmeldung und ausgewählte
 Aufgaben-Sync-Abläufe wurden mit einem echten IC35 getestet. Die öffentliche
 Google-Prüfung für Kalender- und Aufgabenberechtigungen ist noch nicht abgeschlossen.
 Dies ist ein unabhängiges Projekt, keine offizielle Siemens-, Google- oder
@@ -19,6 +19,15 @@ Thunderbird-Anwendung.
 
 Die Programmoberfläche ist derzeit deutschsprachig. Diese Dokumentation ist
 auf Deutsch und Englisch verfügbar.
+
+## Windows-Installer (Alpha)
+
+`IC35-Sync-3.3.0a8-Alpha-Setup.exe` installieren und anschließend **Siemens IC35
+Sync Alpha** über das Startmenü öffnen. Python und Abhängigkeiten sind enthalten.
+Bestehende Daten unter `%APPDATA%\IC35SyncPreview` bleiben erhalten, auch bei
+Deinstallation. Die Geräteprüfungen der Python-Vorversion müssen noch mit der
+gebündelten EXE wiederholt werden. [Installation und Grenzen](docs/WINDOWS_ALPHA.md).
+Die nachfolgende Python-Installation ist für die Ausführung aus dem Quellcode.
 
 [Projektwebsite](https://ic35.thundersoos.cc/) ·
 [Downloads und Releases](https://github.com/ThunderSooS/ic35thunderbird/releases) ·
@@ -38,8 +47,8 @@ Voraussetzungen: Windows, Python **3.12** inklusive Tcl/Tk und Python Launcher,
 IC35-SyncStation sowie ein funktionierender serieller Anschluss/USB-Seriell-Treiber.
 
 1. Das **Programmpaket mit Google-Anmeldung** aus den Release-Anhängen herunterladen
-   und vollständig in einen eigenen Ordner entpacken. Für v3.3.0a3 heißt es
-   `IC35-Sync-3.3.0a3-Google-Login-Test.zip`.
+   und vollständig in einen eigenen Ordner entpacken. Für v3.3.0a4 heißt es
+   `IC35-Sync-3.3.0a4-Google-Login-Test.zip`.
 2. `install.bat` starten. Abhängigkeiten werden in eine lokale `.venv` installiert.
 3. `start.bat` starten und den COM-Port auswählen.
 4. Google-Ziele und gegebenenfalls den Notizordner einrichten.
@@ -110,6 +119,16 @@ Nur Google Tasks kann über denselben Button ohne Kalender laufen.
 - **Wiederherstellen von Vollbackups ist noch nicht implementiert.**
 
 ## Entwickeln und prüfen
+
+Ab 3.3.0a4 werden Tokens beim Laden mit Windows DPAPI geschützt; neue Backups,
+Rohdatenexporte, Berichte und Sync-Protokolle werden verschlüsselt gespeichert.
+Geschützte Dateien benötigen in der Regel dasselbe Windows-Konto auf demselben
+Rechner. Der neue Exportbutton erstellt bei Bedarf eine unverschlüsselte Kopie.
+Ältere Programmversionen können migrierte Tokens nicht lesen. Bestehende Archive,
+laufender Sync-State, Radicale-Daten und Notizdateien sind nicht pauschal
+verschlüsselt. [Umfang, Migration und Grenzen](docs/LOCAL_DATA_PROTECTION.md).
+Die folgenden Hardwareergebnisse beziehen sich auf 3.3.0a3; der Hardwaretest
+und die echte Anmeldung nach Tokenmigration stehen für 3.3.0a4 noch aus.
 
 Für v3.3.0a3 sind **37 Offline-Tests** erfolgreich. Im Test am Gerät wurden
 die Browser-Anmeldung für Kalender und Tasks, die Übernahme einer Google-Aufgabe

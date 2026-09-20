@@ -1575,10 +1575,11 @@ def read_and_export_databases(ser, identity: str):
         finally:
             close_database(ser, filename, fd)
 
-    EXPORTFILE.write_text(
-        json.dumps(export, ensure_ascii=False, indent=2),
-        encoding="utf-8",
-    )
+    if str(EXPORTFILE).endswith('.dpapi'):
+        import private_storage
+        private_storage.write_json(EXPORTFILE, export)
+    else:
+        EXPORTFILE.write_text(json.dumps(export, ensure_ascii=False, indent=2), encoding="utf-8")
 
     log()
     log("=" * 62)

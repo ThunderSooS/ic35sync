@@ -5,6 +5,7 @@ import hashlib
 import json
 from pathlib import Path
 import uuid
+import private_storage
 import todo_protocol as tp
 from memo_sync import atomic_json, read_json
 
@@ -17,7 +18,7 @@ def service(credentials_file, token_file, interactive=False):
     from google_auth_oauthlib.flow import InstalledAppFlow
     from googleapiclient.discovery import build
     token_file = Path(token_file)
-    creds = Credentials.from_authorized_user_file(str(token_file)) if token_file.exists() else None
+    creds = Credentials.from_authorized_user_info(private_storage.read_json(token_file, migrate=True)) if token_file.exists() else None
     if creds and not creds.has_scopes(SCOPES):
         creds = None
     if creds and creds.expired and creds.refresh_token:
@@ -33,7 +34,7 @@ def service(credentials_file, token_file, interactive=False):
         if not creds.has_scopes(SCOPES) or (creds.granted_scopes is not None
                                           and not set(SCOPES).issubset(creds.granted_scopes)):
             raise RuntimeError("Google-Tasks-Berechtigung wurde nicht erteilt.")
-    atomic_json(token_file, json.loads(creds.to_json()))
+    private_storage.write_json(token_file, json.loads(creds.to_json()))
     return build("tasks", "v1", credentials=creds, cache_discovery=False)
 
 

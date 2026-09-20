@@ -4,7 +4,7 @@ import zipfile
 from check_release import ROOT, release_files, check
 
 check()
-output = ROOT / 'dist' / 'IC35-Sync-3.3.0a1-source.zip'
+output = ROOT / 'dist' / 'IC35-Sync-3.3.0a8-source.zip'
 output.parent.mkdir(exist_ok=True)
 with zipfile.ZipFile(output, 'w', compression=zipfile.ZIP_STORED, allowZip64=False) as archive:
     for path in release_files():

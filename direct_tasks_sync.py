@@ -27,11 +27,15 @@ def run(port, config, data_dir, credentials_file, open_serial, notify, logger):
         logger(f"Google-Liste: {config.get('list_title', config['list_id'])}; {len(remote)} Einträge gelesen.")
         notify("stage", "2/3 · SyncStation drücken: Aufgaben synchronisieren")
         logger("SyncStation einmal drücken. Vollbackup nur über 'Nur Backup'.")
+        notify("sound", "press_again")
         proto.log = logger
         proto.PORT = port
         ser = open_serial(port)
         if not proto.do_welcome_and_reopen(ser):
             raise RuntimeError("IC35-Handshake fehlgeschlagen.")
+        notify("sound", "connected")
+        notify("stage", "2/3 · ✓ Dock-Tastendruck erkannt · Aufgaben werden gelesen …")
+        logger("Dock-Tastendruck erkannt: Verbindung zum IC35 bestätigt.")
         identity = proto.identify(ser)
         if not identity or not proto.power_request(ser):
             raise RuntimeError("IC35 konnte nicht initialisiert werden.")

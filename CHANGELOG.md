@@ -1,3 +1,37 @@
+# 3.3.0a8
+
+- Neue persönliche MP3 zum Start der Synchronisation.
+- Schritt 2 bestätigt sichtbar den erkannten Dock-Tastendruck nach erfolgreichem
+  Verbindungsaufbau; ebenso beim direkten Aufgaben-Sync und manuellen Backup.
+- Die bisherige Dock-Aufforderung und der Bestätigungston bleiben erhalten.
+
+# 3.3.0a7 (Windows-Installer-Alpha)
+
+- Einzelne Windows-EXE mit eingebettetem Python, Sounds und Google-Anmeldung.
+- Installer für das aktuelle Konto mit Startmenü und optionalem Desktop-Link.
+- Radicale als Unterprozess der gebündelten EXE; bestehender Datenordner bleibt.
+- Paketprüfung für Tk, Google-API-Definitionen, Ressourcen und lokalen CardDAV-Start.
+
+# 3.3.0a6 (persönliches Audio-Extra)
+
+- Kurzer Bestätigungston nach erfolgreichem Dock-Verbindungsaufbau bei
+  Gesamt-Sync, direktem Aufgaben-Sync und manuellem Backup.
+- Eine noch laufende Dock-Sprachansage wird beim Bestätigungston beendet.
+
+# 3.3.0a5 (persönliches Audio-Extra)
+
+- MP3-Sprachhinweis bei Aufforderung zum Drücken der Docktaste im Gesamt-Sync,
+  direkten Aufgaben-Sync und manuellen Backup.
+- Asynchrone Windows-Wiedergabe einmal pro Aufforderung, nicht pro Verbindungsversuch.
+
+# 3.3.0a4
+
+- Google-Tokens mit Windows-DPAPI und kontrollgelesener atomarer Migration.
+- Neue Geräte-/Memo-/Tasks-Sicherungen, Rohdatenexporte, Berichte und ausführliche Sync-Protokolle verschlüsselt.
+- Exportbutton für eine ausdrücklich angeforderte unverschlüsselte Kopie und Datenschutzlink.
+- Bestehende Archive und laufender State werden nicht pauschal migriert; siehe LOCAL_DATA_PROTECTION.md.
+- Echte DPAPI-Tests mit künstlichen Daten erfolgreich; Hardware-/Google-Migrationstest noch offen.
+
 # 3.3.0a3
 
 - Aufgaben ohne Datum: die vom IC35 eingesetzten Datumswerte werden beim Kontrolllesen akzeptiert und für verknüpfte undatierte Google-Aufgaben nicht zurückübertragen.

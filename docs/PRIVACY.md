@@ -1,6 +1,6 @@
 # Datenschutzerklärung für Siemens IC35 Sync
 
-Stand: 14. September 2026 · Softwarestand: 3.3.0a3
+Stand: 16. September 2026 · Softwarestand: 3.3.0a4 (Vorabversion)
 
 ## Ansprechpartner und Geltungsbereich
 
@@ -104,9 +104,17 @@ enthalten; auch hexadezimale Geräteprotokolle sind nicht anonymisiert.
 Ein manuelles Geräte-Vollbackup liegt unter `backups`. Kleine Sicherungen von
 Sync-Vorgängen und Operationsjournale entstehen auch ohne manuelles Vollbackup.
 
-Die Anwendung verschlüsselt Tokens und lokale Inhalte in Version 3.3.0a3 nicht
-zusätzlich. Ihr Schutz hängt von Windows-Zugriffsrechten, dem Benutzerkonto und
-gegebenenfalls einer vom Nutzer aktivierten Datenträgerverschlüsselung ab.
+Ab Version 3.3.0a4 werden geladene Google-Tokens sowie neu erstellte manuelle und
+automatische Sicherungen, Rohdatenexporte, Berichte und ausführliche Sync-Protokolle
+mit Windows DPAPI für das aktuelle Benutzerkonto verschlüsselt. Geschützte Dateien
+sind grundsätzlich an Windows-Konto und Rechner gebunden. Ein ausdrücklicher
+Export erzeugt auf Wunsch eine unverschlüsselte Kopie.
+Alte Archive werden nicht pauschal nachträglich verschlüsselt. Laufender Sync-State,
+Operationsjournale, Planungsdateien, Radicale-Daten und dessen Startprotokoll sowie
+Notizdateien bleiben in dieser Fassung unverschlüsselt. Ihr Schutz hängt von
+Windows-Zugriffsrechten, dem Benutzerkonto und gegebenenfalls einer vom Nutzer
+aktivierten Datenträgerverschlüsselung ab. DPAPI schützt nicht vor Prozessen unter
+demselben Benutzerkonto und löscht keine älteren Klartextkopien sicher vom Datenträger.
 Auch für Dateien auf dem IC35 verspricht die Anwendung keine Verschlüsselung.
 Der lokale CardDAV-Dienst verwendet HTTP ohne Passwort auf `127.0.0.1:5232`.
 Er ist auf den eigenen Rechner beschränkt; lokale Programme können darauf zugreifen.

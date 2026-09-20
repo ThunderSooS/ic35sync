@@ -41,7 +41,7 @@ class DirectTests(unittest.TestCase):
             self.assertEqual(result['stats']['write_device'], 2)
             self.assertEqual(open_serial.call_count, 1)
             backup.assert_not_called()
-            self.assertEqual([c.args[1] for c in notify.call_args_list if c.args[0] == 'sound'], ['start'])
+            self.assertEqual([c.args[1] for c in notify.call_args_list if c.args[0] == 'sound'], ['start', 'press_again', 'connected'])
 
 
 if __name__ == '__main__':

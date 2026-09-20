@@ -25,9 +25,10 @@ import sync_sounds
 import google_tasks_bridge as gtasks
 import direct_tasks_sync
 import calendar_setup
+import private_storage
 import google_app_setup
 from bridge import ensure_radicale_storage, fetch_storage_snapshot, contact_semantic_to_ic35_fields, mark_address_resource_ic35_id_dav, remember_address_binding, publish_contacts_dav_nolist, analyze_contact_two_way, contact_record_to_semantic, delete_address_resource_dav
-APP_VERSION = '3.3.0a3'
+APP_VERSION = '3.3.0a8'
 APP_NAME = 'Siemens IC35 Sync'
 HOST = '127.0.0.1'
 RADICALE_PORT = 5232
@@ -128,6 +129,8 @@ class App(tk.Tk):
         self.backup_btn.pack(side='left', padx=(8, 0))
         self.data_btn = ttk.Button(row1, text='Datenordner', command=self.open_data_folder)
         self.data_btn.pack(side='left', padx=(8, 0))
+        ttk.Button(tools, text='Geschützte Datei entschlüsselt exportieren …', command=self.export_protected_file).pack(anchor='w', pady=(6, 0))
+        ttk.Button(tools, text='Datenschutz', command=lambda: webbrowser.open('https://ic35.thundersoos.cc/PRIVACY.html')).pack(anchor='w', pady=(6, 0))
         self.notes_btn = ttk.Button(tools, text='Notiz-Ziel einstellen …', command=self.configure_notes)
         self.notes_btn.pack(anchor='w', pady=(8, 0))
         try:
@@ -323,6 +326,8 @@ class App(tk.Tk):
         radicale_log = LOGS / 'radicale_start.log'
         launcher = Path(__file__).with_name('radicale_windows_launcher.py')
         cmd = [sys.executable, str(launcher), '--config', '', '--storage-filesystem-folder', str(STORAGE), '--storage-type', 'multifilesystem_nolock', '--auth-type', 'none', '--server-hosts', f'{HOST}:{RADICALE_PORT}']
+        if getattr(sys, 'frozen', False):
+            cmd = [sys.executable, '--radicale', *cmd[2:]]
         self.log('Starte Radicale …')
         self.log(f'Radicale-Log: {radicale_log}')
         creationflags = subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0
@@ -385,14 +390,27 @@ class App(tk.Tk):
         return ser
 
     def _make_file_logger(self, path: Path):
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text('', encoding='utf-8')
+        protected_log = private_storage.Log(path.with_suffix(path.suffix + '.dpapi'))
 
         def work_log(msg=''):
             self.log(msg)
-            with path.open('a', encoding='utf-8') as f:
-                f.write(str(msg) + '\n')
+            protected_log.append(msg)
         return work_log
+
+    def export_protected_file(self):
+        source = filedialog.askopenfilename(title='Geschützte IC35-Datei auswählen', initialdir=str(APPDATA))
+        if not source:
+            return
+        try:
+            data = private_storage.decode(Path(source).read_bytes())
+            destination = filedialog.asksaveasfilename(title='Unverschlüsselte Kopie speichern – kann persönliche Daten enthalten', initialfile=Path(source).name.removesuffix('.dpapi') + '.export')
+            if not destination:
+                return
+            with Path(destination).open('xb') as stream:
+                stream.write(data)
+            messagebox.showinfo('Export', 'Unverschlüsselte Kopie gespeichert. Vor Weitergabe persönliche Inhalte entfernen.')
+        except Exception as exc:
+            messagebox.showerror('Export', str(exc))
 
     def start_backup(self):
         port = self._selected_port()
@@ -405,22 +423,25 @@ class App(tk.Tk):
     def _backup_worker(self, port):
         stamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         log_file = LOGS / f'IC35_Backup_v1.6.0_{stamp}.log'
-        backup_file = BACKUPS / f'database_{stamp}.org'
+        backup_file = BACKUPS / f'database_{stamp}.org.dpapi'
         meta_file = BACKUPS / f'database_{stamp}.json'
         work_log = self._make_file_logger(log_file)
         ser = None
         try:
             ser = self._open_serial(port)
             work_log(f'{port} geöffnet (Manager-Protokoll 115200/8N2).')
+            self.msg_queue.put(('sound', 'press_again'))
             mgr.manager_connect(ser, work_log)
+            self.msg_queue.put(('sound', 'connected'))
+            self.msg_queue.put(('stage', '✓ Dock-Tastendruck erkannt · Backup läuft …'))
 
             def progress(done, total):
                 self.msg_queue.put(('progress', done))
                 work_log(f'Backup-Fortschritt: {done}/{total} Blöcke')
-            result = mgr.backup_database(ser, backup_file, work_log, progress)
+            result = mgr.backup_database(ser, backup_file, work_log, progress, protected=True)
             mgr.manager_disconnect(ser, work_log)
-            meta = {'created_at': datetime.now().isoformat(), 'port': port, 'format': 'IC35 database.org compatible backup', **result}
-            meta_file.write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding='utf-8')
+            meta = {'created_at': datetime.now().isoformat(), 'port': port, 'format': 'Windows DPAPI envelope containing IC35 database.org compatible backup', **result}
+            private_storage.write_json(meta_file, meta)
             self.msg_queue.put(('backup_done', result))
         except Exception as exc:
             work_log(f'FEHLER: {exc}')
@@ -514,14 +535,18 @@ class App(tk.Tk):
                 raise RuntimeError("Bitte zuerst einen Google-Kalender auswählen.")
             self.msg_queue.put(('stage', '2/4 · SyncStation drücken: synchronisieren'))
             work_log('Bitte jetzt den Sync-Knopf an der SyncStation einmal drücken.')
+            self.msg_queue.put(('sound', 'press_again'))
             work_log("Vollbackup nur auf Anfrage über 'Nur Backup'.")
             proto.PORT = port
             proto.LOGFILE = log_file
-            proto.EXPORTFILE = EXPORTS / f'IC35_raw_fullsync_{stamp}.json'
+            proto.EXPORTFILE = EXPORTS / f'IC35_raw_fullsync_{stamp}.json.dpapi'
             proto.log = work_log
             ser = self._open_serial(port)
             if not proto.do_welcome_and_reopen(ser):
                 raise RuntimeError('WELCOME-Handshake für Gesamt-Sync fehlgeschlagen.')
+            self.msg_queue.put(('sound', 'connected'))
+            self.msg_queue.put(('stage', '2/4 · ✓ Dock-Tastendruck erkannt · IC35 wird gelesen …'))
+            work_log('Dock-Tastendruck erkannt: Verbindung zum IC35 bestätigt.')
             identity = proto.identify(ser)
             if not identity:
                 raise RuntimeError('IC35 konnte nicht identifiziert werden.')
@@ -544,7 +569,7 @@ class App(tk.Tk):
             calendar_stats['conflicts'] = len(calendar_plan['conflicts'])
             calendar_stats['skipped'] = len(calendar_plan['skipped'])
             report = {'created_at': datetime.now().isoformat(), 'device': identity, 'contact_plan': contact_plan, 'calendar_summary': gcal.summarize_calendar_plan(calendar_plan), 'calendar_conflicts': calendar_plan['conflicts'], 'calendar_skipped': calendar_plan['skipped'], 'tasks_operations': tasks_plan['operations'] if tasks_plan else [], 'tasks_skipped': tasks_plan['skipped'] if tasks_plan else []}
-            report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
+            private_storage.write_json(report_path, report)
             if calendar_plan['conflicts']:
                 details = '; '.join((str(x.get('reason') or x.get('type')) for x in calendar_plan['conflicts'][:4]))
                 raise RuntimeError(f"Kalender-Konflikt: {len(calendar_plan['conflicts'])} Termin(e). {details} Bericht: {report_path}")
@@ -720,7 +745,7 @@ class App(tk.Tk):
                 event_id = item['event_id']
                 current_event, delete_request, verified_etag = gcal.prepare_google_event_delete_for_ic35(svc, gcal.load_state(GOOGLE_STATE), event_id, item['binding'], rid)
                 google_backup = EXPORTS / f'Google_event_before_delete_{stamp}_{rid}.json'
-                google_backup.write_text(json.dumps({'saved_at': datetime.now().isoformat(), 'calendar_id': gstate.get('calendar_id'), 'calendar_name': gstate.get('calendar_name'), 'ic35_record_id': rid, 'verified_etag': verified_etag, 'google_event': current_event}, ensure_ascii=False, indent=2), encoding='utf-8')
+                private_storage.write_json(google_backup, {'saved_at': datetime.now().isoformat(), 'calendar_id': gstate.get('calendar_id'), 'calendar_name': gstate.get('calendar_name'), 'ic35_record_id': rid, 'verified_etag': verified_etag, 'google_event': current_event})
                 gcal.execute_prepared_google_delete(delete_request)
                 gcal.forget_binding(GOOGLE_STATE, event_id)
                 calendar_stats['i_delete'] += 1
@@ -875,7 +900,7 @@ class App(tk.Tk):
         return out
 
     def _update_last_backup_label(self):
-        backups = sorted(BACKUPS.glob('database_*.org'), key=lambda p: p.stat().st_mtime, reverse=True)
+        backups = sorted(list(BACKUPS.glob('database_*.org')) + list(BACKUPS.glob('database_*.org.dpapi')), key=lambda p: p.stat().st_mtime, reverse=True)
         if not backups:
             self.backup_var.set('Letztes Komplettbackup: noch keines')
             return

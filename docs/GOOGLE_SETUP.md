@@ -1,14 +1,17 @@
 # Google einrichten
 
-## Entwicklerfassung: eigenes Cloud-Projekt
+## Einmalige Einrichtung durch den Herausgeber
 
 1. Ein Google-Cloud-Projekt anlegen oder ein eigenes vorhandenes Projekt verwenden.
 2. Google Calendar API und Google Tasks API aktivieren, soweit benötigt.
 3. OAuth-Zielgruppe Extern konfigurieren und im Testmodus die eigenen Testkonten eintragen.
 4. Einen OAuth-Client vom Typ **Desktop-App** anlegen und seine JSON-Konfiguration herunterladen.
-5. Im Programm **Google verbinden** wählen und diese Datei auswählen. Der Browser
-   öffnet die Google-Anmeldung. Einen beschreibbaren Kalender auswählen und speichern.
-6. Unter **Aufgaben-Ziel** Google Tasks verbinden, Liste wählen und Teilnahme aktivieren.
+5. Die ausdrücklich für die App bestimmte Desktop-Konfiguration als
+   `google_oauth_client.json` neben die Programmdatei legen. Keine persönlichen
+   Tokens oder Service-Account-Schlüssel mitliefern.
+6. Im Programm **Google verbinden** wählen. Der Browser öffnet die Google-Anmeldung.
+   Einen beschreibbaren Kalender auswählen und speichern.
+7. Unter **Aufgaben-Ziel** Google Tasks verbinden, Liste wählen und Teilnahme aktivieren.
 
 Benötigte Berechtigungen:
 
@@ -44,3 +47,14 @@ Offizielle Referenzen:
 - https://developers.google.com/identity/protocols/oauth2/native-app
 - https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification
 - https://developers.google.com/workspace/tasks/quickstart/python
+
+## Stand 3.3.0a2
+
+Die Dateiauswahl entfällt für Kalender und Tasks. Neue Installationen verwenden
+die mitgelieferte App-Konfiguration; bestehende lokale Konfigurationen bleiben
+erhalten. Ohne Konfiguration erscheint ein Hinweis auf die noch fehlende
+Einrichtung durch den Herausgeber. Der Quellcode-Download enthält noch keinen
+öffentlichen OAuth-Client. Der Source-ZIP-Builder lässt Client-Konfigurationen
+bewusst aus; ein öffentliches Anwendungspaket muss separat mit der freigegebenen
+Desktop-Konfiguration erstellt werden. Der Anmeldeablauf wurde offline geprüft,
+aber noch nicht mit einem öffentlichen Client live getestet.

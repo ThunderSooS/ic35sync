@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import uuid
+import private_storage
 import memo_protocol as mp
 import ic35_protocol as p
 
@@ -30,6 +31,9 @@ def acquire_run_lock(data_dir):
 
 def atomic_json(path, data):
     path = Path(path)
+    if {'backups', 'exports', 'reports'}.intersection(path.parts):
+        private_storage.write_json(path, data)
+        return
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_name(path.name + ".tmp-" + uuid.uuid4().hex)
     try:
@@ -43,7 +47,7 @@ def atomic_json(path, data):
 
 
 def read_json(path, default=None):
-    return json.loads(Path(path).read_text(encoding="utf-8")) if Path(path).exists() else default
+    return private_storage.read_json(path, migrate='backups' in Path(path).parts) if Path(path).exists() else default
 
 
 def configure(folder):
@@ -292,7 +296,7 @@ def apply(plan, ser, export, logger=print):
         backup = state_dir / "backups" / uuid.uuid4().hex
         atomic_json(backup / "before.json", {"state": state, "device": plan["device"], "plan": plan["operations"]})
         for name in plan["files"]:
-            (backup / name).write_bytes((root / name).read_bytes())
+            private_storage.write_bytes(backup / (name + '.dpapi'), (root / name).read_bytes())
         expected_files = dict(plan["files"])
         current_device = dict(plan["device"])
         for op in plan["operations"]:

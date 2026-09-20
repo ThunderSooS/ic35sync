@@ -75,6 +75,32 @@ class Google:
 
 
 class Tests(unittest.TestCase):
+    def test_undated_firmware_default_recovery_and_edits(self):
+        remote = task()
+        remote.pop('due', None)
+        expected = g.to_fields(g.google_semantic(remote))
+        actual = dict(expected, Start='20000101', Ende='20001231')
+        self.assertTrue(tp.matches_written(actual, expected))
+        self.assertFalse(tp.matches_written(dict(actual, Ende='20001230'), expected))
+        self.assertFalse(tp.matches_written(dict(actual, Betreff='wrong'), expected))
+        with tempfile.TemporaryDirectory() as td:
+            directory = Path(td)
+            backup = directory / 'backups' / 'before.json'
+            g.atomic_json(backup, {'device': {}})
+            g.atomic_json(directory / 'pending.json', {'operation': {
+                'kind': 'write_device', 'rid': None, 'task_id': 'a', 'fields': expected}, 'backup': str(backup)})
+            state = {'bindings': {}}
+            g.recover_device_create(directory, state, {'9': actual}, {'a': remote})
+            self.assertFalse((directory / 'pending.json').exists())
+            binding = state['bindings']['9']
+            self.assertEqual(binding['semantic']['due'], '')
+            self.assertEqual(g.build_plan(state['bindings'], {'9': actual}, {'a': remote})[0][0]['kind'], 'bind')
+            edited = dict(actual, Erledigt=1)
+            self.assertEqual(g.build_plan(state['bindings'], {'9': edited}, {'a': remote})[0][0]['kind'], 'write_google')
+            self.assertEqual(g.bound_semantic(edited, binding)['due'], '')
+            self.assertEqual(g.bound_semantic(dict(actual, Ende='20261001'), binding)['due'], '20261001')
+            self.assertEqual(g.semantic(actual)['due'], '20001231')
+
     def test_hardware_start_date_normalization_and_recovery(self):
         expected = g.to_fields(g.google_semantic(task()))
         actual = dict(expected, Start=expected['Ende'])
