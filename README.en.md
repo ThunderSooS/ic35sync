@@ -14,7 +14,7 @@ The Python setup instructions below apply to running from source.
 > 🚧 **Pre-release – Google verification in progress**
 >
 > Google branding has been verified. Verification of Calendar and Tasks
-> permissions is being prepared; the demo video is still pending.
+> permissions is being prepared; the demo video is available.
 > Bug reports are welcome through GitHub Issues.
 
 A Windows desktop client for the Siemens IC35: synchronize contacts with

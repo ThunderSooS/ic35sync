@@ -5,7 +5,7 @@
 > 🚧 **Vorabversion – Google-Verifizierung in Arbeit**
 >
 > Das Google-Branding ist bestätigt. Die Prüfung der Kalender- und
-> Aufgabenberechtigungen wird vorbereitet; das Demo-Video steht noch aus.
+> Aufgabenberechtigungen wird vorbereitet; das Demo-Video liegt vor.
 > Fehlerberichte sind über die GitHub-Issues willkommen.
 
 Windows-Desktop-Client für den Siemens IC35: Kontakte mit Thunderbird/CardDAV,
