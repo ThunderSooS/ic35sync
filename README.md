@@ -6,20 +6,20 @@
 
 **Frühere Korrektur a3:** Behebt einen falschen Kontrolllese-Abbruch nach dem Anlegen eines Termins. Der IC35 speichert ein Null-Steuerfeld teilweise leer und setzt bei Einzelterminen ein unbenutztes Wiederholungs-Enddatum. Diese beobachteten Vorgaben werden erkannt. State-/Journaldateien nicht löschen; dieselbe Kalenderauswahl weiterverwenden.
 
-**IC35 Sync Beta für Windows 10/11 (64 Bit).** Kontakte, einzelne Termine und Aufgaben werden in beide Richtungen mit einem Siemens IC35 synchronisiert. Die Sync-App benötigt keine eigene Cloud-Anmeldung und keine JSON-Zugangsdaten. Das mitgelieferte Add-on verbindet bereits vorhandene Thunderbird-Kalender, einschließlich Google-CalDAV- und anderer Netzwerkkalender. Thunderbird verwaltet weiterhin deren Anmeldung und Serversynchronisation.
+**Thunderbird-Alpha für Windows 10/11 (64 Bit).** Kontakte, einzelne Termine und Aufgaben werden in beide Richtungen mit einem Siemens IC35 synchronisiert. Die Sync-App benötigt keine eigene Cloud-Anmeldung und keine JSON-Zugangsdaten. Das mitgelieferte Add-on verbindet bereits vorhandene Thunderbird-Kalender, auch einen dort eingerichteten Google-CalDAV-Kalender wie „twitch“. Thunderbird verwaltet weiterhin dessen Anmeldung und Serversynchronisation.
 
 [English](README.en.md) · [Datenschutz](PRIVACY.md) · [Änderungen](CHANGELOG.md) · [Lizenz](LICENSE)
 
-## Einen vorhandenen Thunderbird-Kalender verwenden
+## Vorhandenen Kalender „twitch“ verwenden
 
-Den vorhandenen Kalender und die Handy-Einrichtung unverändert lassen. Die Verbindung lautet:
+**[Schritt-für-Schritt-Anleitung](TWITCH_EINRICHTEN.md).** Kalender und Handy-Einrichtung unverändert lassen. Die neue Verbindung lautet:
 
 `IC35 ↔ Sync-App ↔ Thunderbird-Add-on ↔ vorhandener Kalenderdienst ↔ Handy`
 
 1. Neues Setup installieren. Das Add-on `IC35-Thunderbird-Bridge-3.4.0a9.xpi` liegt danach neben der EXE und wird zusätzlich als Download angeboten.
 2. In Thunderbird über **Add-ons und Themes → Zahnrad → Add-on aus Datei installieren** die XPI installieren.
 3. In der Sync-App **Thunderbird-Add-on koppeln** drücken. Den kopierten Code in den Einstellungen des Add-ons einfügen und **Verbinden** drücken.
-4. In der App **Kalender aus Thunderbird laden** drücken und bei **Termine aus** den gewünschten Kalender mit dem Zusatz **· Thunderbird** auswählen.
+4. In der App **Kalender aus Thunderbird laden** drücken und bei **Termine aus** den Kalender **twitch · Thunderbird** auswählen.
 5. Für Aufgaben separat einen unterstützten Kalender wählen oder **Lokale IC35-Sammlung** belassen. Google Tasks wird nicht über diese CalDAV-Verbindung bereitgestellt.
 
 Getestet mit Thunderbird **153.0.1**; das Add-on ist vorerst auf **153.x** begrenzt, da es interne Kalender-Schnittstellen verwendet. Thunderbird zeigt für diese Art Add-on eine weitreichende Berechtigungsabfrage. Der mitgelieferte Code verwendet Kalenderfunktionen, keine E-Mails oder Kontopasswörter.
@@ -32,8 +32,9 @@ Kontakte verwenden weiterhin das lokale CardDAV-Adressbuch. Eine alternative Aus
 
 1. `IC35-Sync-Beta-3.4.0a11-Setup.exe` ausführen. Python muss nicht separat installiert werden. Das Setup installiert für das aktuelle Windows-Konto, ohne Administratorrechte.
 2. **IC35 Sync Beta** starten und den COM-Anschluss des Docks auswählen. Die Zeitzone muss zur Uhr des IC35 passen (Vorgabe `Europe/Berlin`).
-3. Die App geöffnet lassen. Sie startet einen lokalen CardDAV-/CalDAV-Dienst, der ausschließlich auf `127.0.0.1:5233` lauscht. Dafür ist keine Internetverbindung erforderlich.
-4. Die folgenden beiden Sammlungen einmalig in Thunderbird hinzufügen. Der Button **Thunderbird einrichten** zeigt die Adressen ebenfalls an.
+3. Das mitgelieferte Add-on `IC35-Thunderbird-Bridge-3.4.0a9.xpi` in Thunderbird installieren und Thunderbird neu starten.
+4. In der App **Thunderbird-Add-on koppeln** drücken, den Kopplungscode in den Add-on-Einstellungen einfügen und **Verbinden** drücken.
+5. **Kalender aus Thunderbird laden** drücken und den gewünschten Kalender bzw. die Aufgabensammlung mit dem Zusatz **· Thunderbird** auswählen.
 
 ### Kontakte
 
@@ -43,18 +44,7 @@ Im Thunderbird-Adressbuch **Neues Adressbuch → CardDAV-Adressbuch hinzufügen*
 - Adresse: `http://127.0.0.1:5233/ic35/addressbook/`
 - Falls Thunderbird ein Passwort abfragt: `ic35`. Es handelt sich um den lokalen Dienst, der kein echtes Kontopasswort prüft.
 
-### Kalender und Aufgaben
-
-In Thunderbird **Neuer Kalender → Im Netzwerk** wählen und den CalDAV-Kalender hinzufügen:
-
-- Benutzername: `ic35`
-- Adresse: `http://127.0.0.1:5233/ic35/calendar/`
-- Falls Thunderbird ein Passwort abfragt: `ic35` (nur für diesen lokalen Dienst).
-- Derselbe Kalender enthält Termine **und Aufgaben**. Neue Aufgaben in diesem Kalender anlegen.
-
-Die Bezeichnungen können je nach Thunderbird-Version leicht abweichen. [Thunderbird-Hilfe zu Netzwerkkalendern](https://support.mozilla.org/de/kb/neue-kalender-erstellen).
-
-Bei Auswahl **Lokale IC35-Sammlung** werden nur diese lokalen Sammlungen synchronisiert. Für einen bereits in Thunderbird eingerichteten Kalender stattdessen das Add-on verwenden; Einträge müssen dann nicht kopiert werden. Beim ersten Abgleich werden vorhandene IC35-Inhalte in das gewählte Ziel übertragen und Einträge vom gewählten Ziel auf das Gerät übernommen. Eindeutig identische Einträge auf beiden Seiten werden verknüpft.
+Thunderbird verwaltet die Anmeldung und Serversynchronisation des gewählten Kalenders. Die IC35-App benötigt dafür keine Google-Zugangsdaten oder JSON-Dateien. Beim ersten Abgleich werden vorhandene Einträge in beide Richtungen übernommen und eindeutig gleiche Einträge verknüpft.
 
 ## Täglicher Ablauf
 

@@ -27,11 +27,11 @@ Keep both applications open. Network calendars must be online; errors or pending
 
 1. Run `IC35-Sync-Beta-3.4.0a11-Setup.exe`. Python is bundled; installation is per user without administrator rights.
 2. Open **IC35 Sync Beta**, select the dock's COM port and check the IC35 time zone (default `Europe/Berlin`).
-3. Keep the app open. It hosts a local DAV service listening only on `127.0.0.1:5233`; an Internet connection is not required.
-4. In Thunderbird's Address Book, add a **CardDAV address book** at `http://127.0.0.1:5233/ic35/addressbook/` with username `ic35`. If Thunderbird asks for a password, enter `ic35`; this local service does not verify a real account password.
-5. For the optional local calendar, add a **network/CalDAV calendar** at `http://127.0.0.1:5233/ic35/calendar/`, also username/password `ic35`. This calendar holds both events and tasks.
+3. Install the bundled `IC35-Thunderbird-Bridge-3.4.0a9.xpi` add-on in Thunderbird and restart Thunderbird.
+4. In the app, click **Thunderbird-Add-on koppeln**, paste the pairing code into the add-on settings and click **Verbinden**.
+5. Click **Kalender aus Thunderbird laden** and select the existing calendar and task collection shown with **· Thunderbird**.
 
-When **Lokale IC35-Sammlung** is selected, only these local collections are synchronized. Use the add-on selection above for an existing calendar instead of copying its entries. The first run imports existing entries in both directions and links uniquely matching entries. See [Thunderbird's calendar setup help](https://support.mozilla.org/en-US/kb/creating-new-calendars).
+The add-on method uses the calendars and task collections already configured in Thunderbird. Thunderbird continues to handle account login and server synchronization; the IC35 app does not need Google credentials or JSON files.
 
 ## Daily use
 
