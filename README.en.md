@@ -1,70 +1,105 @@
 # IC35 Sync Beta · 3.4.0a11
 
-**a9 requires both the app and add-on update.** Install the new setup and `IC35-Thunderbird-Bridge-3.4.0a9.xpi` using Thunderbird's Install Add-on From File menu, then restart Thunderbird. Pairing is preserved. Confirmed uncached CalDAV notifications can recover a missing write callback, followed by readback. Unconfirmed operations time out without retrying and the calendar list remains available. Keep all sync state files.
+**Update a9: App und Add-on aktualisieren.** Zusätzlich zum Installer muss `IC35-Thunderbird-Bridge-3.4.0a9.xpi` in Thunderbird installiert werden (Add-ons und Themes → Zahnrad → Add-on aus Datei installieren). Danach Thunderbird neu starten. Die Kopplung bleibt erhalten. Das Add-on kann erfolgreiche CalDAV-Schreibvorgänge trotz fehlendem Rückruf erkennen, liest die Daten zur Kontrolle und bleibt bei Zeitüberschreitungen erreichbar. Unbestätigte Schreibvorgänge werden nicht wiederholt. State-Dateien erhalten.
 
-**a8:** Prevents the observed delete/recreate loop. Unique matching events are linked even when their reminders differ; both initial reminder values are preserved. Cleanup requires an existing original and an unchanged journal-identified copy, never just IC35 markers. Keep state files and the same calendar selection. This does not generally resolve CalDAV acknowledgement timeouts for necessary writes.
+**Update a8:** Beendet die beobachtete Lösch-/Neuanlage-Schleife. Bereits vorhandene Einzeltermine werden bei eindeutig gleichem Inhalt auch mit unterschiedlicher Erinnerung verknüpft. Beide Erinnerungswerte bleiben beim Erstabgleich erhalten. Automatische Bereinigung verlangt ein passendes Original, ein unverändertes Gerät und eine unveränderte, im Journal identifizierte Kopie. Keine Löschung allein anhand von IC35-Markierungen. State-Dateien erhalten und dieselbe Kalenderauswahl weiterverwenden. Allgemeine CalDAV-Zeitüberschreitungen bei tatsächlich notwendigen Schreibvorgängen bleiben gesondert zu untersuchen.
 
-**a3 update:** Recognizes observed IC35 firmware defaults after event creation: an empty zero-valued control field and an unused repeat-end date on non-recurring events. This fixes a false readback failure and lets the existing recovery journal associate the already-created event. Keep state/journal files and use the same calendar selection. The a2 Thunderbird add-on remains compatible; reinstalling it is unnecessary.
+**Frühere Korrektur a3:** Behebt einen falschen Kontrolllese-Abbruch nach dem Anlegen eines Termins. Der IC35 speichert ein Null-Steuerfeld teilweise leer und setzt bei Einzelterminen ein unbenutztes Wiederholungs-Enddatum. Diese beobachteten Vorgaben werden erkannt. State-/Journaldateien nicht löschen; dieselbe Kalenderauswahl weiterverwenden.
 
-**Thunderbird alpha for 64-bit Windows 10/11.** Two-way synchronization of contacts, individual calendar events and tasks with a Siemens IC35. The sync app needs no cloud login or credential JSON files. The bundled add-on connects existing Thunderbird calendars, including a Google CalDAV calendar already configured there. Thunderbird continues handling the account connection. The application interface is currently German.
+**IC35 Sync Beta für Windows 10/11 (64 Bit).** Kontakte, einzelne Termine und Aufgaben werden in beide Richtungen mit einem Siemens IC35 synchronisiert. Die Sync-App benötigt keine eigene Cloud-Anmeldung und keine JSON-Zugangsdaten. Das mitgelieferte Add-on verbindet bereits vorhandene Thunderbird-Kalender, einschließlich Google-CalDAV- und anderer Netzwerkkalender. Thunderbird verwaltet weiterhin deren Anmeldung und Serversynchronisation.
 
-[Deutsch](README.md) · [Privacy](PRIVACY.md) · [License](LICENSE)
+[English](README.en.md) · [Datenschutz](PRIVACY.md) · [Änderungen](CHANGELOG.md) · [Lizenz](LICENSE)
 
-## Use an existing calendar
+## Einen vorhandenen Thunderbird-Kalender verwenden
 
-Keep your existing calendar and phone configuration. The path is `IC35 ↔ sync app ↔ Thunderbird add-on ↔ existing calendar service ↔ phone`.
+**[Schritt-für-Schritt-Anleitung](TWITCH_EINRICHTEN.md).** Kalender und Handy-Einrichtung unverändert lassen. Die neue Verbindung lautet:
 
-1. Install the new setup and install `IC35-Thunderbird-Bridge-3.4.0a9.xpi` in Thunderbird using **Add-ons and Themes → gear menu → Install Add-on From File**. The installer places this file beside the EXE; it is also a separate release asset.
-2. In the sync app, click **Thunderbird-Add-on koppeln**. Paste the copied pairing code into the add-on's settings and click **Verbinden**.
-3. Click **Kalender aus Thunderbird laden** in the app and choose the existing calendar (e.g. **twitch · Thunderbird**) under **Termine aus**.
-4. Choose a task-capable calendar separately under **Aufgaben aus**, or keep **Lokale IC35-Sammlung**. Google Tasks is not available through Google's CalDAV calendar connection.
+`IC35 ↔ Sync-App ↔ Thunderbird-Add-on ↔ vorhandener Kalenderdienst ↔ Handy`
 
-The add-on currently supports **Thunderbird 153.x**, tested on 153.0.1. It uses an Experiment API for calendar access, which causes Thunderbird to show a broad permission prompt. Its implementation uses calendar functions and does not access email or account passwords.
+1. Neues Setup installieren. Das Add-on `IC35-Thunderbird-Bridge-3.4.0a9.xpi` liegt danach neben der EXE und wird zusätzlich als Download angeboten.
+2. In Thunderbird über **Add-ons und Themes → Zahnrad → Add-on aus Datei installieren** die XPI installieren.
+3. In der Sync-App **Thunderbird-Add-on koppeln** drücken. Den kopierten Code in den Einstellungen des Add-ons einfügen und **Verbinden** drücken.
+4. In der App **Kalender aus Thunderbird laden** drücken und bei **Termine aus** den gewünschten Kalender mit dem Zusatz **· Thunderbird** auswählen.
+5. Für Aufgaben separat einen unterstützten Kalender wählen oder **Lokale IC35-Sammlung** belassen. Google Tasks wird nicht über diese CalDAV-Verbindung bereitgestellt.
 
-Keep both applications open. Network calendars must be online; errors or pending offline changes stop the reconciliation. Existing calendar entries do not need to be copied. Read-only or disabled calendars are not selectable. Contacts still use the local CardDAV address book below. Recurrence and other limitations listed below still apply.
+Getestet mit Thunderbird **153.0.1**; das Add-on ist vorerst auf **153.x** begrenzt, da es interne Kalender-Schnittstellen verwendet. Thunderbird zeigt für diese Art Add-on eine weitreichende Berechtigungsabfrage. Der mitgelieferte Code verwendet Kalenderfunktionen, keine E-Mails oder Kontopasswörter.
 
-## Setup
+Bei Netzwerkkalendern müssen Thunderbird und die Sync-App laufen und der Kalenderdienst erreichbar sein. Schreibgeschützte/deaktivierte Kalender werden nicht zur Auswahl angeboten. Der Kalender wird vor dem Abgleich aktualisiert; offline wartende Änderungen oder Ladefehler stoppen den Vorgang. Änderungen gehen an den bestehenden Kalender und können dadurch auch auf dem Handy erscheinen. Serien und andere unten genannte Einschränkungen bleiben bestehen.
 
-1. Run `IC35-Sync-Beta-3.4.0a11-Setup.exe`. Python is bundled; installation is per user without administrator rights.
-2. Open **IC35 Sync Beta**, select the dock's COM port and check the IC35 time zone (default `Europe/Berlin`).
-3. Keep the app open. It hosts a local DAV service listening only on `127.0.0.1:5233`; an Internet connection is not required.
-4. In Thunderbird's Address Book, add a **CardDAV address book** at `http://127.0.0.1:5233/ic35/addressbook/` with username `ic35`. If Thunderbird asks for a password, enter `ic35`; this local service does not verify a real account password.
-5. For the optional local calendar, add a **network/CalDAV calendar** at `http://127.0.0.1:5233/ic35/calendar/`, also username/password `ic35`. This calendar holds both events and tasks.
+Kontakte verwenden weiterhin das lokale CardDAV-Adressbuch. Eine alternative Auswahl bestehender Thunderbird-Adressbücher ist nicht Teil dieser Version.
 
-When **Lokale IC35-Sammlung** is selected, only these local collections are synchronized. Use the add-on selection above for an existing calendar instead of copying its entries. The first run imports existing entries in both directions and links uniquely matching entries. See [Thunderbird's calendar setup help](https://support.mozilla.org/en-US/kb/creating-new-calendars).
+## Installation und erster Start
 
-## Daily use
+1. `IC35-Sync-Beta-3.4.0a11-Setup.exe` ausführen. Python muss nicht separat installiert werden. Das Setup installiert für das aktuelle Windows-Konto, ohne Administratorrechte.
+2. **IC35 Sync Beta** starten und den COM-Anschluss des Docks auswählen. Die Zeitzone muss zur Uhr des IC35 passen (Vorgabe `Europe/Berlin`).
+3. Die App geöffnet lassen. Sie startet einen lokalen CardDAV-/CalDAV-Dienst, der ausschließlich auf `127.0.0.1:5233` lauscht. Dafür ist keine Internetverbindung erforderlich.
+4. Die folgenden beiden Sammlungen einmalig in Thunderbird hinzufügen. Der Button **Thunderbird einrichten** zeigt die Adressen ebenfalls an.
 
-Synchronize the address book/calendar in Thunderbird, then click **Alles mit Thunderbird synchronisieren** in this app. Press the dock button when prompted. The UI and a sound confirm the connection. Wait for completion, then synchronize Thunderbird again to receive the changes. Avoid editing either side during the operation.
+### Kontakte
 
-The regular workflow uses one dock connection, without a confirmation dialog or an automatic full-device backup. The supplied start and dock voice prompts and connection/completion sounds are retained.
+Im Thunderbird-Adressbuch **Neues Adressbuch → CardDAV-Adressbuch hinzufügen** wählen:
 
-## Supported data and limits
+- Benutzername: `ic35`
+- Adresse: `http://127.0.0.1:5233/ic35/addressbook/`
+- Falls Thunderbird ein Passwort abfragt: `ic35`. Es handelt sich um den lokalen Dienst, der kein echtes Kontopasswort prüft.
 
-- Contacts: first/last name, company, home/work/mobile/fax numbers, one postal address, two email addresses, URL, birthday and note.
-- Calendar: individual timed events, title, note, start/end and one supported display reminder. Zoned events are converted to the configured device time zone; device events use local floating times. Set Thunderbird to the same time zone.
-- Tasks: title, note, start/due dates without time, open/completed and high/normal/low priority.
-- Creation, editing and deletion propagate both ways after the first successful association.
+### Kalender und Aufgaben
 
-Unsupported items are skipped with a reason in the log: recurring/all-day events, exceptions, invitations, task times/reminders/intermediate progress, complex contacts with additional names/addresses or duplicate phone slots, and text exceeding IC35 field sizes or Windows-1252. Photos and other Thunderbird-only properties are not copied to the IC35; properties without a device equivalent are retained when updating an existing resource. Categories are not synchronized bidirectionally. IC35 memos are outside this edition's scope.
+In Thunderbird **Neuer Kalender → Im Netzwerk** wählen und den CalDAV-Kalender hinzufügen:
 
-## Safety and storage
+- Benutzername: `ic35`
+- Adresse: `http://127.0.0.1:5233/ic35/calendar/`
+- Falls Thunderbird ein Passwort abfragt: `ic35` (nur für diesen lokalen Dienst).
+- Derselbe Kalender enthält Termine **und Aufgaben**. Neue Aufgaben in diesem Kalender anlegen.
 
-Conflicting edits or delete/edit conflicts stop the planned batch. Set both entries to the desired identical content, then retry; do not delete the sync state. Writes are read back, DAV changes use ETags, and a persistent journal supports recovery after interruption. An ambiguous interrupted operation stops for investigation. An error can occur after some changes have succeeded; there is no automatic rollback of the entire batch.
+Die Bezeichnungen können je nach Thunderbird-Version leicht abweichen. [Thunderbird-Hilfe zu Netzwerkkalendern](https://support.mozilla.org/de/kb/neue-kalender-erstellen).
 
-The app saves an encrypted record snapshot before reconciliation. This is not a full-device backup and does not require another dock press. **Nur Vollbackup** creates a separate complete `database_….org.dpapi`. No full-backup restore-to-device feature is included. **Geschützte Datei exportieren** decrypts a file to a plaintext copy; it does not restore it to the IC35.
+Bei Auswahl **Lokale IC35-Sammlung** werden nur diese lokalen Sammlungen synchronisiert. Für einen bereits in Thunderbird eingerichteten Kalender stattdessen das Add-on verwenden; Einträge müssen dann nicht kopiert werden. Beim ersten Abgleich werden vorhandene IC35-Inhalte in das gewählte Ziel übertragen und Einträge vom gewählten Ziel auf das Gerät übernommen. Eindeutig identische Einträge auf beiden Seiten werden verknüpft.
 
-Data directory: `%APPDATA%\IC35ThunderbirdAlpha`. State, journals, exports, operation snapshots and application logs use current-user Windows DPAPI. Add-on state/snapshots are separated by calendar selection under `sync_states`; `addon_pairing.dpapi` stores the protected pairing code. An interrupted operation must be resolved using its previous calendar selection before changing targets. The DAV collection files and Thunderbird caches remain ordinary local files. Files are retained until manually removed. DPAPI files depend on the originating Windows account.
+## Täglicher Ablauf
 
-Previous versions' data/settings are neither migrated nor removed. The new edition has its own installer, directory and port. Use only one IC35 per data directory: the model identifier is not a guaranteed unique serial number. After resetting or replacing the device, plan a separate initialization with backed-up data instead of reusing the previous state. Uninstalling keeps personal data.
+1. App öffnen und in Thunderbird Adressbuch/Kalender synchronisieren. Während des Geräteabgleichs keine Einträge bearbeiten.
+2. **Alles mit Thunderbird synchronisieren** drücken. Die Startansage ertönt.
+3. Nach Aufforderung die Taste am IC35-Dock drücken. Der erkannte Verbindungsaufbau wird sichtbar bestätigt und mit einem Ton quittiert.
+4. Abschluss abwarten. Danach Thunderbird erneut synchronisieren, damit die Geräteänderungen angezeigt werden.
 
-## Alpha verification and source build
+Ein normaler Abgleich benötigt eine Dock-Verbindung und startet ohne zusätzliche Bestätigungsfrage. Ein Vollbackup wird nur über **Nur Vollbackup** angefordert.
 
-43 automated tests cover mappings, two-way changes/deletions, conflicts, recovery, pairing security and calendar selection. A real isolated Thunderbird 153.0.1 profile tests add-on creation/updates/deletion with local and cached CalDAV calendars, changes from both sides and unavailable-server rejection. No personal Google calendar is used in these tests. Windows executable checks cover the UI, DPAPI and bundled DAV service.
+## Was wird abgeglichen?
 
-**The new combined Thunderbird workflow has not yet been verified on real IC35 hardware.** Its serial transport comes from the previous edition. Make a manual full backup before the first hardware test, then test a contact, individual event and task in both directions, including deletion.
+| Bereich | Unterstützt |
+| --- | --- |
+| Kontakte | Vor-/Nachname, Firma, private/geschäftliche Telefonnummer, Mobilnummer, Fax, eine Anschrift, zwei E-Mail-Adressen, URL, Geburtstag, Notiz |
+| Kalender | Einzeltermine mit Anfang/Ende, Betreff, Notiz und einer kompatiblen Anzeige-Erinnerung |
+| Aufgaben | Betreff, Notiz, Start-/Fälligkeitsdatum ohne Uhrzeit, offen/erledigt, hoch/normal/niedrig |
+| Änderungen | Anlegen, Bearbeiten und Löschen in beiden Richtungen nach erfolgreicher Zuordnung |
 
-Use Python **3.12** on Windows:
+Kalenderzeiten werden in die eingestellte IC35-Zeitzone umgerechnet. Das Gerät kennt selbst keine Zeitzonen; neue Gerätetermine werden als lokale Uhrzeiten bereitgestellt. Thunderbird entsprechend auf dieselbe Zeitzone einstellen.
+
+Diese Alpha überspringt nicht sicher darstellbare Einträge und nennt den Grund im Protokoll: Terminserien und Ausnahmen, ganztägige Termine, Einladungen, Aufgaben mit Uhrzeit/Erinnerungen/Zwischenstatus sowie zu lange Texte oder Zeichen außerhalb Windows-1252. Komplexe Kontakte mit mehreren Anschriften, zusätzlichen Namensbestandteilen oder mehreren Nummern desselben Typs werden ebenfalls übersprungen. Fotos und zusätzliche Thunderbird-Felder werden nicht auf den IC35 übertragen; bei Änderungen einer vorhandenen Ressource bleiben nicht abgebildete Eigenschaften erhalten. Kategorien werden nicht bidirektional abgeglichen. IC35-Memos sind nicht Bestandteil dieser Ausgabe.
+
+## Konflikte, Sicherungen und Fehler
+
+- Unterschiedliche Änderungen auf beiden Seiten bzw. Löschen auf einer und Ändern auf der anderen Seite stoppen den geplanten Abgleich. Beide Einträge auf denselben gewünschten Stand bringen und erneut starten. State-Dateien nicht löschen.
+- Geräte-Schreibvorgänge werden zurückgelesen. Thunderbird-Schreibvorgänge verwenden Versionsprüfungen (ETags). Ein dauerhaftes Journal verhindert blindes Wiederholen nach einem Abbruch. Ein mehrdeutiger unterbrochener Vorgang stoppt mit Fehlermeldung.
+- Ein Fehler während einer laufenden Übertragung kann nach einzelnen bereits übernommenen Änderungen auftreten. Der nächste Lauf prüft den gespeicherten Zwischenstand; dies ist keine Transaktion mit automatischem Rollback.
+- Vor einem Abgleich wird eine geschützte Datensatz-Sicherung angelegt. Das ist **kein vollständiges IC35-Speicherbackup** und benötigt keinen zusätzlichen Dock-Tastendruck.
+- **Nur Vollbackup** erstellt separat eine vollständige `database_….org.dpapi`. Die App enthält keine Rückschreibfunktion für diese Vollbackups. **Geschützte Datei exportieren** erzeugt eine entschlüsselte Kopie, keine Wiederherstellung auf dem Gerät.
+- DPAPI-Dateien können grundsätzlich nur mit dem zugehörigen Windows-Konto entschlüsselt werden. Exporte sind unverschlüsselt.
+
+Datenordner: `%APPDATA%\IC35ThunderbirdAlpha`. Darin liegen `radicale` (lokale Sammlungen), `thunderbird_state.dpapi`, gegebenenfalls `pending.dpapi`, `backups`, `exports`, `logs` und `reports`. Add-on-Zuordnungen und deren Sicherungen liegen getrennt pro Kalenderauswahl unter `sync_states`; der Kopplungscode liegt geschützt in `addon_pairing.dpapi`. Ein unvollständiger Abgleich mit einer anderen Auswahl muss zuerst abgeschlossen werden. Die lokalen DAV-Dateien und Thunderbird-Caches sind nicht durch die App verschlüsselt. Keine automatische Aufräumfrist. Der Button **Datenordner** öffnet den Ordner.
+
+Die bisherigen Datenordner, Zugangsdaten und Zuordnungen älterer Ausgaben werden nicht migriert oder gelöscht. Diese Alpha verwendet einen eigenen Installer, Datenordner und Port. Pro Datenordner nur **einen IC35** verwenden; die Gerätekennung ist keine garantierte individuelle Seriennummer. Nach Zurücksetzen/Austausch des Geräts den bisherigen State nicht weiterverwenden, sondern eine getrennte Neueinrichtung mit gesicherten Daten planen. Eine Deinstallation lässt persönliche Daten bestehen.
+
+## Entwicklungsstand und Test
+
+43 automatisierte Tests prüfen Zuordnung, Änderungen/Löschungen, Konflikte, Wiederaufnahme, Kopplungsschutz und Kalenderauswahl. Ein isoliertes Thunderbird-153.0.1-Profil prüft das echte Add-on mit lokalen und zwischengespeicherten CalDAV-Kalendern, inklusive Änderungen auf beiden Seiten, Versionskonflikten und Serverausfall. Die Windows-EXE wird separat auf Startfähigkeit, Tk-Oberfläche und DPAPI geprüft. Dein Google-Kalender wurde für diese Tests nicht verwendet.
+
+**Der neue Thunderbird-Gesamtabgleich ist noch nicht an echter IC35-Hardware bestätigt.** Der serielle Transport stammt aus der bisherigen Ausgabe. Vor produktiver Nutzung mit einem Testkontakt, einem Einzeltermin und einer Aufgabe jeweils beide Richtungen und Löschungen prüfen. Vor dem ersten Hardwaretest ein manuelles Vollbackup erstellen.
+
+## Quellcode und eigener Build
+
+Benötigt Python **3.12** unter Windows. Die Runtime-Abhängigkeiten stehen in `requirements.txt`; `build-requirements.txt` dokumentiert die konkreten Versionen dieses Builds.
 
 ```powershell
 py -3.12 -m venv .venv
@@ -74,10 +109,10 @@ py -3.12 -m venv .venv
 .\.venv\Scripts\python.exe scripts/build_windows.py
 ```
 
-The build also packages the XPI from `addon/`. Compile `installer.iss` with Inno Setup 6. `scripts/package_source.py` creates and validates the source ZIP using an explicit allowlist. `scripts/smoke_windows.py` checks the executable and embedded DAV service without accessing a device. `scripts/test_thunderbird.py` uses a separate synthetic Thunderbird profile. `build-requirements.txt` records the concrete build versions. No personal data or credentials are packaged.
+Der Build erstellt auch die XPI aus `addon/`. Anschließend `installer.iss` mit Inno Setup 6 kompilieren. `scripts/package_source.py` erstellt ein Quellarchiv aus einer festen Dateiliste und prüft dessen ZIP-Integrität. `scripts/smoke_windows.py` prüft die gebaute EXE einschließlich ihres eingebetteten DAV-Dienstes ohne Gerätezugriff. `scripts/test_thunderbird.py` nutzt eine separate, künstliche Thunderbird-Testumgebung. Es werden keine persönlichen Daten, Schlüssel oder State-Dateien verpackt.
 
-Use this source as a complete new repository revision, removing the previous cloud modules and build configuration instead of overlaying files. Publish the installer as a release asset. GPL-2.0; see `THIRD_PARTY_NOTICES.md` for provenance and bundled license notices.
+Für GitHub den Quellcode als vollständigen neuen Stand verwenden, nicht einfach über alle alten Dateien kopieren: alte Cloud-Module und frühere Build-Konfigurationen gehören nicht in diese Ausgabe. Installer unter Releases bereitstellen. GPL-2.0; Herkunft und weitere Lizenzen siehe `THIRD_PARTY_NOTICES.md`.
 
-## Recurring events and interrupted writes (a4)
+## Serien und Wiederaufnahme ab a4
 
-IC35 events matching an existing Thunderbird recurrence are skipped even if reminders differ. Series are not modified. An interrupted CREATE may roll back only its journal-identified duplicate after an encrypted backup and fresh checks. Unrelated or subsequently edited duplicates are not deleted automatically. Keep all state and pending files and select the same calendar. The a2 add-on remains compatible.
+Passende Einzeltermine auf dem IC35 werden bei vorhandener Thunderbird-Serie übersprungen, auch bei abweichender Erinnerung. Die Serie wird nicht bearbeitet. Eine im unterbrochenen CREATE nachweislich erzeugte Einzelkopie wird nach verschlüsselter Sicherung und erneuter Prüfung entfernt. Fremde oder nachträglich inhaltlich bearbeitete Duplikate werden nicht automatisch gelöscht. State und pending.dpapi nicht entfernen; unverändert denselben Kalender auswählen. Add-on a2 muss nicht neu installiert werden.
