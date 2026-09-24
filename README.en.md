@@ -1,12 +1,6 @@
 # IC35 Sync Beta · 3.4.0a11
 
-**a9 requires both the app and add-on update.** Install the new setup and `IC35-Thunderbird-Bridge-3.4.0a9.xpi` using Thunderbird's Install Add-on From File menu, then restart Thunderbird. Pairing is preserved. Confirmed uncached CalDAV notifications can recover a missing write callback, followed by readback. Unconfirmed operations time out without retrying and the calendar list remains available. Keep all sync state files.
-
-**a8:** Prevents the observed delete/recreate loop. Unique matching events are linked even when their reminders differ; both initial reminder values are preserved. Cleanup requires an existing original and an unchanged journal-identified copy, never just IC35 markers. Keep state files and the same calendar selection. This does not generally resolve CalDAV acknowledgement timeouts for necessary writes.
-
-**a3 update:** Recognizes observed IC35 firmware defaults after event creation: an empty zero-valued control field and an unused repeat-end date on non-recurring events. This fixes a false readback failure and lets the existing recovery journal associate the already-created event. Keep state/journal files and use the same calendar selection. The a2 Thunderbird add-on remains compatible; reinstalling it is unnecessary.
-
-**Thunderbird alpha for 64-bit Windows 10/11.** Two-way synchronization of contacts, individual calendar events and tasks with a Siemens IC35. The sync app needs no cloud login or credential JSON files. The bundled add-on connects existing Thunderbird calendars, including a Google CalDAV calendar already configured there. Thunderbird continues handling the account connection. The application interface is currently German.
+**IC35 Sync Beta for 64-bit Windows 10/11.** Two-way synchronization of contacts, individual calendar events and tasks with a Siemens IC35. The sync app needs no cloud login or credential JSON files. The bundled add-on connects existing Thunderbird calendars, including Google CalDAV and other network calendars. Thunderbird continues handling the account connection. The application interface is currently German.
 
 [Deutsch](README.md) · [Privacy](PRIVACY.md) · [License](LICENSE)
 

@@ -1,25 +1,19 @@
 # IC35 Sync Beta · 3.4.0a11
 
-**Update a9: App und Add-on aktualisieren.** Zusätzlich zum Installer muss `IC35-Thunderbird-Bridge-3.4.0a9.xpi` in Thunderbird installiert werden (Add-ons und Themes → Zahnrad → Add-on aus Datei installieren). Danach Thunderbird neu starten. Die Kopplung bleibt erhalten. Das Add-on kann erfolgreiche CalDAV-Schreibvorgänge trotz fehlendem Rückruf erkennen, liest die Daten zur Kontrolle und bleibt bei Zeitüberschreitungen erreichbar. Unbestätigte Schreibvorgänge werden nicht wiederholt. State-Dateien erhalten.
-
-**Update a8:** Beendet die beobachtete Lösch-/Neuanlage-Schleife. Bereits vorhandene Einzeltermine werden bei eindeutig gleichem Inhalt auch mit unterschiedlicher Erinnerung verknüpft. Beide Erinnerungswerte bleiben beim Erstabgleich erhalten. Automatische Bereinigung verlangt ein passendes Original, ein unverändertes Gerät und eine unveränderte, im Journal identifizierte Kopie. Keine Löschung allein anhand von IC35-Markierungen. State-Dateien erhalten und dieselbe Kalenderauswahl weiterverwenden. Allgemeine CalDAV-Zeitüberschreitungen bei tatsächlich notwendigen Schreibvorgängen bleiben gesondert zu untersuchen.
-
-**Frühere Korrektur a3:** Behebt einen falschen Kontrolllese-Abbruch nach dem Anlegen eines Termins. Der IC35 speichert ein Null-Steuerfeld teilweise leer und setzt bei Einzelterminen ein unbenutztes Wiederholungs-Enddatum. Diese beobachteten Vorgaben werden erkannt. State-/Journaldateien nicht löschen; dieselbe Kalenderauswahl weiterverwenden.
-
-**Thunderbird-Alpha für Windows 10/11 (64 Bit).** Kontakte, einzelne Termine und Aufgaben werden in beide Richtungen mit einem Siemens IC35 synchronisiert. Die Sync-App benötigt keine eigene Cloud-Anmeldung und keine JSON-Zugangsdaten. Das mitgelieferte Add-on verbindet bereits vorhandene Thunderbird-Kalender, auch einen dort eingerichteten Google-CalDAV-Kalender wie „twitch“. Thunderbird verwaltet weiterhin dessen Anmeldung und Serversynchronisation.
+**IC35 Sync Beta für Windows 10/11 (64 Bit).** Kontakte, einzelne Termine und Aufgaben werden in beide Richtungen mit einem Siemens IC35 synchronisiert. Die Sync-App benötigt keine eigene Cloud-Anmeldung und keine JSON-Zugangsdaten. Das mitgelieferte Add-on verbindet bereits vorhandene Thunderbird-Kalender, einschließlich Google-CalDAV- und anderer Netzwerkkalender. Thunderbird verwaltet weiterhin deren Anmeldung und Serversynchronisation.
 
 [English](README.en.md) · [Datenschutz](PRIVACY.md) · [Änderungen](CHANGELOG.md) · [Lizenz](LICENSE)
 
-## Vorhandenen Kalender „twitch“ verwenden
+## Einen vorhandenen Thunderbird-Kalender verwenden
 
-**[Schritt-für-Schritt-Anleitung](TWITCH_EINRICHTEN.md).** Kalender und Handy-Einrichtung unverändert lassen. Die neue Verbindung lautet:
+Den vorhandenen Kalender und die Handy-Einrichtung unverändert lassen. Die Verbindung lautet:
 
 `IC35 ↔ Sync-App ↔ Thunderbird-Add-on ↔ vorhandener Kalenderdienst ↔ Handy`
 
 1. Neues Setup installieren. Das Add-on `IC35-Thunderbird-Bridge-3.4.0a9.xpi` liegt danach neben der EXE und wird zusätzlich als Download angeboten.
 2. In Thunderbird über **Add-ons und Themes → Zahnrad → Add-on aus Datei installieren** die XPI installieren.
 3. In der Sync-App **Thunderbird-Add-on koppeln** drücken. Den kopierten Code in den Einstellungen des Add-ons einfügen und **Verbinden** drücken.
-4. In der App **Kalender aus Thunderbird laden** drücken und bei **Termine aus** den Kalender **twitch · Thunderbird** auswählen.
+4. In der App **Kalender aus Thunderbird laden** drücken und bei **Termine aus** den gewünschten Kalender mit dem Zusatz **· Thunderbird** auswählen.
 5. Für Aufgaben separat einen unterstützten Kalender wählen oder **Lokale IC35-Sammlung** belassen. Google Tasks wird nicht über diese CalDAV-Verbindung bereitgestellt.
 
 Getestet mit Thunderbird **153.0.1**; das Add-on ist vorerst auf **153.x** begrenzt, da es interne Kalender-Schnittstellen verwendet. Thunderbird zeigt für diese Art Add-on eine weitreichende Berechtigungsabfrage. Der mitgelieferte Code verwendet Kalenderfunktionen, keine E-Mails oder Kontopasswörter.
