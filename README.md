@@ -12,7 +12,7 @@
 
 ## Einen vorhandenen Thunderbird-Kalender verwenden
 
-**[Schritt-für-Schritt-Anleitung](TWITCH_EINRICHTEN.md).** Kalender und Handy-Einrichtung unverändert lassen. Die neue Verbindung lautet:
+Den vorhandenen Kalender und die Handy-Einrichtung unverändert lassen. Die Verbindung lautet:
 
 `IC35 ↔ Sync-App ↔ Thunderbird-Add-on ↔ vorhandener Kalenderdienst ↔ Handy`
 
