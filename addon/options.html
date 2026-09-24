@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="de"><meta charset="utf-8"><title>IC35-Verbindung</title>
+<style>body{font:16px system-ui;max-width:680px;margin:40px auto;padding:20px;color:#162e43}h1{font-size:26px}input{width:95%;padding:12px;font:16px monospace}button{padding:10px 18px;margin:16px 8px 12px 0}#status{padding:15px;background:#eef5f9;border-radius:8px}p{line-height:1.6}</style>
+<h1>Thunderbird mit dem IC35 verbinden</h1>
+<p>Öffne in der IC35-App <b>Thunderbird-Add-on koppeln</b> und kopiere den Code hierher. Danach kannst du in der App deinen bestehenden Kalender auswählen, etwa „twitch“.</p>
+<label for="token">Kopplungscode</label><p><input id="token" type="password" autocomplete="off" spellcheck="false"></p>
+<button id="save">Verbinden</button><button id="forget">Verbindung entfernen</button>
+<p id="status">Verbindung wird geprüft …</p>
+<p>Das Add-on liest und ändert den in der App ausgewählten Kalender. Die Verbindung zur App bleibt auf diesem PC. Thunderbird übernimmt weiterhin die Synchronisation seiner Netzwerkkalender. Google-Passwörter oder Anmeldetoken werden nicht an die IC35-App weitergegeben.</p>
+<p>Thunderbird und die IC35-App müssen beim Abgleich geöffnet bleiben. Diese Alpha unterstützt Thunderbird 153.x.</p>
+<script src="options.js"></script></html>

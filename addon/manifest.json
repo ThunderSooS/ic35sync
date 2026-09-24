@@ -1,0 +1,15 @@
+{
+  "manifest_version": 2,
+  "name": "IC35 Thunderbird Bridge",
+  "version": "3.4.0.9",
+  "description": "Verbindet ausgewählte Thunderbird-Kalender mit der lokalen IC35-Sync-App.",
+  "author": "Christian Thomas",
+  "browser_specific_settings": {"gecko": {"id": "ic35-bridge@thundersoos.cc", "strict_min_version": "153.0", "strict_max_version": "153.*"}},
+  "permissions": ["storage", "http://127.0.0.1/*"],
+  "background": {"scripts": ["background.js"]},
+  "options_ui": {"page": "options.html", "open_in_tab": true},
+  "browser_action": {"default_title": "IC35-Verbindung einrichten"},
+  "experiment_apis": {
+    "ic35Calendar": {"schema": "schema.json", "parent": {"scopes": ["addon_parent"], "paths": [["ic35Calendar"]], "script": "api.js"}}
+  }
+}
