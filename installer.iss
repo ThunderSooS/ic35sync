@@ -1,4 +1,4 @@
-#define AppVersion "3.4.0a11"
+#define AppVersion "3.4.0b1"
 #ifndef BuildTest
   #define BuildTest 0
 #endif
@@ -36,13 +36,13 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: desktopicon; Description: "Desktop-Verknüpfung / Desktop shortcut"; Flags: unchecked
 [Files]
 Source: "dist\IC35Thunderbird.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "release\IC35-Thunderbird-Bridge-3.4.0a9.xpi"; DestDir: "{app}"; Flags: ignoreversion
+Source: "release\IC35-Thunderbird-Bridge-3.4.0b1.xpi"; DestDir: "{app}"; Flags: ignoreversion
 Source: "LICENSE"; DestDir: "{app}"; Flags: ignoreversion
 Source: "README.md"; DestDir: "{app}"; Flags: ignoreversion
 Source: "README.en.md"; DestDir: "{app}"; Flags: ignoreversion
 Source: "THIRD_PARTY_NOTICES.md"; DestDir: "{app}"; Flags: ignoreversion
 Source: "PRIVACY.md"; DestDir: "{app}"; Flags: ignoreversion
-Source: "TWITCH_EINRICHTEN.md"; DestDir: "{app}"; Flags: ignoreversion
+Source: "CHANGELOG.md"; DestDir: "{app}"; Flags: ignoreversion
 Source: "build-requirements.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: "build-licenses\*"; DestDir: "{app}\licenses"; Flags: ignoreversion recursesubdirs createallsubdirs
 [Icons]

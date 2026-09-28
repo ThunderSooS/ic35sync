@@ -1,4 +1,8 @@
-# Verification · 3.4.0a9
+# Verification · 3.4.0b1
+
+## Google Tasks adapter
+
+The real Thunderbird 153.0.1 extension API was exercised with a synthetic Google-provider wrapper backed by Thunderbird storage. The wrapper assigns new server IDs and normalizes due dates to UTC timestamps. End-to-end reconciliation covers IC35-side creation, server-side creation, bidirectional edits and completion/reopening, deletion from either side, stable ID mapping and repeated runs without duplicates. Durable uncertain-create state blocks synchronization. Subtask hierarchies are rejected. Existing real CalDAV integration checks also pass. The physical IC35 and live Google provider/account are not exercised by this automated test; a live test is still required before claiming full provider compatibility.
 
 ## a9 write acknowledgement checks
 

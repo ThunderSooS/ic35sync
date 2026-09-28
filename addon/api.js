@@ -60,6 +60,38 @@ async function mutate(calendar, uid, operation, invoke, timeoutMs = 60000) {
   finally { remove(); }
 }
 
+function googleTasks(calendar) {
+  return ['gdata', 'ext-{a62ef8ec-5fdc-40c2-873c-223b8a6925cc}'].includes(calendar.type);
+}
+
+// Persist server-assigned task IDs before acknowledging a create to Python.
+// An interrupted create without a confirmed ID must never be retried blindly.
+function taskLinks(calendar, value) {
+  const key = 'extensions.ic35.taskLinks.' + encodeURIComponent(calendar.id);
+  if (value !== undefined) {
+    Services.prefs.setStringPref(key, JSON.stringify(value));
+    Services.prefs.savePrefFile(null);
+  }
+  return JSON.parse(Services.prefs.getStringPref(key, '{"ids":{},"pending":null}'));
+}
+
+function taskPacked(calendar, item) {
+  if (!googleTasks(calendar)) return packed(item);
+  const links = taskLinks(calendar);
+  const copy = item.clone();
+  const alias = Object.keys(links.ids).find(id => links.ids[id] === item.id);
+  if (alias) copy.id = alias;
+  // Google Tasks stores a date in a UTC timestamp; do not shift it to local time.
+  if (copy.dueDate) {
+    const date = copy.dueDate.clone();
+    date.isDate = true;
+    copy.dueDate = date;
+  }
+  // Normalizing a clone marks it dirty in Thunderbird and can update timestamps.
+  // Compare the untouched provider item, never the generated transport clone.
+  return {...packed(copy), etag: packed(item).etag};
+}
+
 function describe(calendar) {
   return {id: calendar.id, name: calendar.name, type: calendar.type,
     readOnly: calendar.readOnly, disabled: !!calendar.getProperty('disabled'),
@@ -73,7 +105,8 @@ function selected(args) {
   if (!['events', 'tasks'].includes(args.kind)) throw new Error('Unbekannter Datentyp');
   const info = describe(calendar);
   if (info.disabled || info.readOnly || !info[args.kind]) throw new Error('Kalender ist deaktiviert, schreibgeschützt oder unterstützt diesen Datentyp nicht.');
-  if (!['storage', 'caldav'].includes(calendar.type)) throw new Error('Diese Alpha unterstützt lokale und CalDAV-Kalender.');
+  if (!['storage', 'caldav'].includes(calendar.type) && !(googleTasks(calendar) && args.kind === 'tasks')) throw new Error('Dieser Kalenderanbieter wird für den gewählten Datentyp nicht unterstützt.');
+  if (googleTasks(calendar) && taskLinks(calendar).pending) throw new Error('Google-Aufgabe wurde möglicherweise angelegt, aber ihre ID nicht bestätigt. Abgleich gesperrt, um doppelte Aufgaben zu verhindern. Bitte den letzten Vorgang prüfen lassen.');
   if (Services.io.offline && calendar.type !== 'storage') throw new Error('Thunderbird ist offline. Bitte zuerst den Kalender synchronisieren.');
   const status = calendar.getProperty('currentStatus');
   if (status && !Components.isSuccessCode(status)) throw new Error('Thunderbird meldet einen Kalenderfehler. Bitte zuerst dort synchronisieren.');
@@ -149,23 +182,29 @@ async function execute(job, context = {}) {
       Ci.calICalendar.ITEM_FILTER_TYPE_TODO | Ci.calICalendar.ITEM_FILTER_COMPLETED_ALL;
     const items = [];
     for await (const batch of cal.iterate.streamValues(calendar.getItems(filter, 0, null, null))) {
-      for (const item of batch) { assertKind(item, args.kind); items.push(packed(item)); }
+      for (const item of batch) {
+        assertKind(item, args.kind);
+        if (googleTasks(calendar) && item.getProperty('RELATED-TO')) throw new Error('Google-Aufgabenliste enthält Unteraufgaben. Hierarchien werden zum Schutz vor kaskadierenden Löschungen noch nicht synchronisiert.');
+        items.push(taskPacked(calendar, item));
+      }
     }
     return {complete: true, items};
   }
   if (typeof args.uid !== 'string' || !args.uid) throw new Error('UID fehlt');
   await noPending(calendar);
-  const old = await calendar.getItem(args.uid);
+  const links = googleTasks(calendar) ? taskLinks(calendar) : null;
+  const serverUid = links?.ids[args.uid] || args.uid;
+  const old = await calendar.getItem(serverUid);
   assertKind(old, args.kind);
-  if (job.method === 'get') return old ? packed(old) : null;
-  if ((old ? packed(old).etag : null) !== args.expected) throw new Error('Eintrag wurde seit der Planung verändert. Bitte erneut synchronisieren.');
+  if (job.method === 'get') return old ? taskPacked(calendar, old) : null;
+  if ((old ? taskPacked(calendar, old).etag : null) !== args.expected) throw new Error('Eintrag wurde seit der Planung verändert. Bitte erneut synchronisieren.');
   if (old) ordinary(old);
   if (job.method === 'delete') {
     if (!old) throw new Error('Zu löschender Eintrag fehlt');
     if (context.expired) throw new Error('Auftrag bereits abgelaufen; keine neue Änderung gestartet.');
     await mutate(calendar, args.uid, 'delete', () => calendar.deleteItem(old));
     await noPending(calendar);
-    if (await calendar.getItem(args.uid)) throw new Error('Löschung wurde nicht bestätigt');
+    if (await calendar.getItem(serverUid)) throw new Error('Löschung wurde nicht bestätigt');
     return null;
   }
   const parser = new CalIcsParser();
@@ -175,6 +214,12 @@ async function execute(job, context = {}) {
   const item = items[0];
   assertKind(item, args.kind); ordinary(item);
   if (item.id !== args.uid) throw new Error('UID darf nicht geändert werden');
+  if (links) {
+    if (item.priority && ![0, 5].includes(item.priority)) throw new Error('Google Tasks unterstützt keine hohe/niedrige Priorität. Aufgabe auf dem IC35 zuerst auf normale Priorität setzen.');
+    if (item.entryDate && (!item.dueDate || item.entryDate.icalString !== item.dueDate.icalString)) throw new Error('Google Tasks unterstützt kein separates Startdatum. Startdatum dieser IC35-Aufgabe entfernen oder dem Fälligkeitsdatum angleichen.');
+    item.entryDate = null;
+    item.id = serverUid;
+  }
   item.calendar = calendar;
   if (old) item.generation = old.generation;
   // IC35 stores local wall time. Make the intended zone explicit for CalDAV.
@@ -188,11 +233,18 @@ async function execute(job, context = {}) {
     }
   }
   if (context.expired) throw new Error('Auftrag bereits abgelaufen; keine neue Änderung gestartet.');
-  await mutate(calendar, args.uid, old ? 'modify' : 'add', () => old ? calendar.modifyItem(item, old) : calendar.addItem(item));
+  if (links && !old) { links.pending = {uid: args.uid, title: item.title}; taskLinks(calendar, links); }
+  const written = await mutate(calendar, serverUid, old ? 'modify' : 'add', () => old ? calendar.modifyItem(item, old) : calendar.addItem(item));
+  if (links && !old) {
+    if (!written?.id) throw new Error('Google hat keine Aufgaben-ID bestätigt. Kein automatischer Wiederholungsversuch.');
+    links.ids[args.uid] = written.id;
+    links.pending = null;
+    taskLinks(calendar, links);
+  }
   await noPending(calendar);
-  const actual = await calendar.getItem(args.uid);
+  const actual = await calendar.getItem(links?.ids[args.uid] || args.uid);
   if (!actual) throw new Error('Schreiben wurde nicht bestätigt');
-  return packed(actual);
+  return taskPacked(calendar, actual);
 }
 
 var ic35Calendar = class extends ExtensionCommon.ExtensionAPI {

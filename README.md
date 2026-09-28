@@ -1,4 +1,4 @@
-# IC35 Sync Beta · 3.4.0a11
+# IC35 Sync Beta · 3.4.0b1
 
 **IC35 Sync Beta für Windows 10/11 (64 Bit).** Kontakte, einzelne Termine und Aufgaben werden in beide Richtungen mit einem Siemens IC35 synchronisiert. Die Sync-App benötigt keine eigene Cloud-Anmeldung und keine JSON-Zugangsdaten. Das mitgelieferte Add-on verbindet bereits vorhandene Thunderbird-Kalender, einschließlich Google-CalDAV- und anderer Netzwerkkalender. Thunderbird verwaltet weiterhin deren Anmeldung und Serversynchronisation.
 
@@ -10,11 +10,11 @@ Den vorhandenen Kalender und die Handy-Einrichtung unverändert lassen. Die Verb
 
 `IC35 ↔ Sync-App ↔ Thunderbird-Add-on ↔ vorhandener Kalenderdienst ↔ Handy`
 
-1. Neues Setup installieren. Das Add-on `IC35-Thunderbird-Bridge-3.4.0a9.xpi` liegt danach neben der EXE und wird zusätzlich als Download angeboten.
+1. Neues Setup installieren. Das Add-on `IC35-Thunderbird-Bridge-3.4.0b1.xpi` liegt danach neben der EXE und wird zusätzlich als Download angeboten.
 2. In Thunderbird über **Add-ons und Themes → Zahnrad → Add-on aus Datei installieren** die XPI installieren.
 3. In der Sync-App **Thunderbird-Add-on koppeln** drücken. Den kopierten Code in den Einstellungen des Add-ons einfügen und **Verbinden** drücken.
-4. In der App **Kalender aus Thunderbird laden** drücken und bei **Termine aus** den gewünschten Kalender mit dem Zusatz **· Thunderbird** auswählen.
-5. Für Aufgaben separat einen unterstützten Kalender wählen oder **Lokale IC35-Sammlung** belassen. Google Tasks wird nicht über diese CalDAV-Verbindung bereitgestellt.
+4. In der App **Kalender und Aufgabenlisten laden** drücken und bei **Termine aus** den gewünschten Kalender mit dem Zusatz **· Thunderbird** auswählen.
+5. Für Aufgaben separat einen unterstützten Kalender wählen oder **Lokale IC35-Sammlung** belassen. Google-Tasks-Listen werden über das Thunderbird-Add-on „Provider for Google Calendar“ angeboten.
 
 Getestet mit Thunderbird **153.0.1**; das Add-on ist vorerst auf **153.x** begrenzt, da es interne Kalender-Schnittstellen verwendet. Thunderbird zeigt für diese Art Add-on eine weitreichende Berechtigungsabfrage. Der mitgelieferte Code verwendet Kalenderfunktionen, keine E-Mails oder Kontopasswörter.
 
@@ -24,11 +24,11 @@ Kontakte verwenden weiterhin das lokale CardDAV-Adressbuch. Eine alternative Aus
 
 ## Installation und erster Start
 
-1. `IC35-Sync-Beta-3.4.0a11-Setup.exe` ausführen. Python muss nicht separat installiert werden. Das Setup installiert für das aktuelle Windows-Konto, ohne Administratorrechte.
+1. `IC35-Sync-Beta-3.4.0b1-Setup.exe` ausführen. Python muss nicht separat installiert werden. Das Setup installiert für das aktuelle Windows-Konto, ohne Administratorrechte.
 2. **IC35 Sync Beta** starten und den COM-Anschluss des Docks auswählen. Die Zeitzone muss zur Uhr des IC35 passen (Vorgabe `Europe/Berlin`).
-3. Das mitgelieferte Add-on `IC35-Thunderbird-Bridge-3.4.0a9.xpi` in Thunderbird installieren und Thunderbird neu starten.
+3. Das mitgelieferte Add-on `IC35-Thunderbird-Bridge-3.4.0b1.xpi` in Thunderbird installieren und Thunderbird neu starten.
 4. In der App **Thunderbird-Add-on koppeln** drücken, den Kopplungscode in den Add-on-Einstellungen einfügen und **Verbinden** drücken.
-5. **Kalender aus Thunderbird laden** drücken und den gewünschten Kalender bzw. die Aufgabensammlung mit dem Zusatz **· Thunderbird** auswählen.
+5. **Kalender und Aufgabenlisten laden** drücken und den gewünschten Kalender bzw. die Aufgabensammlung mit dem Zusatz **· Thunderbird** auswählen.
 
 ### Kontakte
 
@@ -100,3 +100,15 @@ Für GitHub den Quellcode als vollständigen neuen Stand verwenden, nicht einfac
 ## Serien und Wiederaufnahme ab a4
 
 Passende Einzeltermine auf dem IC35 werden bei vorhandener Thunderbird-Serie übersprungen, auch bei abweichender Erinnerung. Die Serie wird nicht bearbeitet. Eine im unterbrochenen CREATE nachweislich erzeugte Einzelkopie wird nach verschlüsselter Sicherung und erneuter Prüfung entfernt. Fremde oder nachträglich inhaltlich bearbeitete Duplikate werden nicht automatisch gelöscht. State und pending.dpapi nicht entfernen; unverändert denselben Kalender auswählen. Add-on a2 muss nicht neu installiert werden.
+
+## Google Tasks über Thunderbird
+
+Installer 3.4.0b1 und das neue IC35-Add-on `IC35-Thunderbird-Bridge-3.4.0b1.xpi` installieren und Thunderbird neu starten. Das Add-on hat intern die Version 3.4.0.12. Eine vorhandene Kopplung bleibt erhalten.
+
+Die Aufgabenliste muss bereits über „Provider for Google Calendar“ in Thunderbird eingerichtet sein. In der Sync-App **Kalender und Aufgabenlisten laden** drücken und bei **Aufgaben aus** die gewünschte Liste auswählen, beispielsweise **ThunderClub · Thunderbird**. Anschließend normal synchronisieren.
+
+Unterstützt werden Titel, Notizen, Fälligkeitsdatum und Erledigt-Status sowie Anlegen, Bearbeiten und Löschen in beide Richtungen. Google vergibt neue Aufgaben-IDs; das IC35-Add-on speichert deren Zuordnung im Thunderbird-Profil. Dieses Profil und die Sync-State-Dateien aufbewahren. Eine Neuanlage ohne bestätigte ID sperrt den Abgleich statt die Aufgabe erneut anzulegen; in diesem Fall das Log zur Prüfung bereitstellen und keine State-Dateien löschen.
+
+Google Tasks unterstützt kein separates Startdatum und keine IC35-Prioritäten. Aufgaben müssen normale Priorität haben; ein Startdatum darf höchstens dem Fälligkeitsdatum entsprechen. Listen mit Unteraufgaben werden gesperrt. Wiederkehrende Google-Aufgaben werden vom Provider nicht zuverlässig als Serien abgebildet und sind nicht unterstützt. Für einen ersten Test eine Liste mit einfachen Aufgaben verwenden.
+
+Die Integration wurde mit einem nachgebildeten Google-Provider in einem echten, isolierten Thunderbird getestet. Der Abgleich mit einem echten Google-Konto und dem physischen IC35 muss noch praktisch bestätigt werden.

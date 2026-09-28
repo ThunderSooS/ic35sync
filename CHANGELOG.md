@@ -1,3 +1,10 @@
+# 3.4.0b1 · Google-Tasks-Listen über Thunderbird
+
+- Unterstützt Aufgabenlisten des Google-Providers, unabhängig vom Listennamen.
+- Dauerhafte Zuordnung von Google-Aufgaben-IDs; unbestätigte Neuanlagen werden nicht automatisch wiederholt.
+- Neuer Buttontext: Kalender und Aufgabenlisten laden.
+- Neues IC35-Add-on 3.4.0.12 erforderlich. Grenzen und Testumfang siehe README.
+
 # 3.4.0a10 · Kopplung nach Add-on-Neuinstallation
 
 - Gültiger Kopplungscode darf eine veraltete Thunderbird-Profilkennung ersetzen, wenn keine andere aktive Sitzung verbunden ist. Dadurch funktioniert eine Neuinstallation des Add-ons ohne manuelles Zurücksetzen versteckter Browserdaten.

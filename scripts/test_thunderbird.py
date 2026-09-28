@@ -44,6 +44,18 @@ prefs = {'extensions.autoDisableScopes': 0, 'extensions.enabledScopes': 15, 'ext
 
 # Fixtures exist only in this disposable test XPI. They are never included in the release.
 fixture = """
+  if (job.method === 'list' && job.params?.taskLinksTest) {
+    const c = globalThis.testGoogle;
+    const links = taskLinks(c);
+    if (job.params?.native) {
+      const { CalTodo } = ChromeUtils.importESModule('resource:///modules/CalTodo.sys.mjs');
+      const item = new CalTodo(); item.id = 'server-native'; item.title = 'Created on Google';
+      if (job.params.subtask) item.setProperty('RELATED-TO', 'parent-id');
+      await c.addItem(item);
+    }
+    if (job.params?.pending !== undefined) { links.pending = job.params.pending; taskLinks(c, links); }
+    return taskLinks(c);
+  }
   if (job.method === 'list' && job.params?.selfTest) {
     const make = cached => ({id: 'test-' + Math.random(), type: 'caldav', wrappedJSObject: {isCached: cached},
       observers: new Set(), addObserver(o) { this.observers.add(o); }, removeObserver(o) { this.observers.delete(o); }});
@@ -79,6 +91,24 @@ fixture = """
     return {lostAck: true, wrongUidRejected: true, noRetry: true, cachedNotConfirmed: true};
   }
   if (job.method === '_fixture') {
+    const tasks = cal.manager.createCalendar('storage', Services.io.newURI('moz-storage-calendar://'));
+    tasks.id = Services.uuid.generateUUID().toString(); tasks.name = 'Synthetic Google Tasks';
+    const wrapper = {
+      id: tasks.id, name: 'ThunderClub fixture', type: 'ext-{a62ef8ec-5fdc-40c2-873c-223b8a6925cc}',
+      readOnly: false, canRefresh: false,
+      getProperty(k) { return k === 'capabilities.events.supported' ? false : tasks.getProperty(k); },
+      getItem(id) { return tasks.getItem(id); },
+      getItems(...args) { return tasks.getItems(...args); },
+      async addItem(item) {
+        const copy = item.clone(); copy.id = 'google-' + Services.uuid.generateUUID().toString();
+        copy.entryDate = null; copy.priority = 0;
+        if (copy.dueDate?.isDate) copy.dueDate = cal.createDateTime(copy.dueDate.icalString + 'T000000Z');
+        return tasks.addItem(copy);
+      },
+      modifyItem(item, old) { return tasks.modifyItem(item, old); },
+      deleteItem(item) { return tasks.deleteItem(item); },
+    };
+    globalThis.testGoogle = wrapper;
     const c = cal.manager.createCalendar('storage', Services.io.newURI('moz-storage-calendar://'));
     c.id = Services.uuid.generateUUID().toString().replace(/[{}]/g, '');
     c.name = 'IC35 isolated test'; cal.manager.registerCalendar(c);
@@ -107,6 +137,7 @@ with zipfile.ZipFile(profile / 'extensions/ic35-bridge@thundersoos.cc.xpi', 'w',
     for path in (ROOT / 'addon').iterdir():
         content = path.read_text(encoding='utf-8')
         if path.name == 'api.js':
+            content = content.replace('cal.manager.getCalendars()', '[...cal.manager.getCalendars(), ...(globalThis.testGoogle ? [globalThis.testGoogle] : [])]')
             content = content.replace('async function execute(job, context = {}) {', 'async function execute(job, context = {}) {' + fixture)
             content = content.replace('() => old ? calendar.modifyItem(item, old) : calendar.addItem(item)',
                 "() => { const result = old ? calendar.modifyItem(item, old) : calendar.addItem(item); if (args._dropAck) { result.catch(() => {}); return new Promise(() => {}); } return result; }")
@@ -183,6 +214,47 @@ try:
     from test_sync import FakeDevice, device, export
     from thunderbird_calendar import Calendars
     from dav_sync import Sync
+    # Real Thunderbird item/ICS APIs with a simulated Google provider assigning IDs.
+    # This does not authenticate to or write to a personal Google account.
+    google = next(c for c in broker.call('list')['calendars'] if c['name'] == 'ThunderClub fixture')
+    task_device = FakeDevice(); task_device.items['tasks:1'] = device('tasks', 'Stream anniversary')
+    task_device.items['tasks:1']['fields']['Ende'] = '20261025'
+    task_device.items['tasks:1']['semantic'] = model.semantic('tasks', task_device.items['tasks:1']['fields'])
+    task_adapter = Calendars(direct, broker, {'tasks': google['id']})
+    task_state = out / 'google-task-state'
+    def task_sync():
+        return Sync(task_state, 'synthetic-device', task_adapter, task_device, lambda _: None).run(export(task_device.items))
+    task_sync()
+    task_snapshot = task_adapter.snapshot()
+    task_href = next(iter(task_snapshot)); task_remote = task_snapshot[task_href]
+    assert task_remote['fields']['Betreff'] == 'Stream anniversary'
+    assert task_remote['fields']['Ende'] == '20261025'
+    assert task_remote['uid'] == 'ic35-tasks-1@local'
+    assert broker.call('list', {'taskLinksTest': True})['ids'][task_remote['uid']].startswith('google-')
+    task_sync(); assert len(task_adapter.snapshot()) == 1
+    changed = dict(task_remote['fields'], Betreff='Edited in Thunderbird', Erledigt=1)
+    task_adapter.write(task_href, model.render('tasks', changed, task_remote['uid']), task_remote)
+    task_sync()
+    assert task_device.items['tasks:1']['fields']['Erledigt'] == 1
+    assert task_device.items['tasks:1']['fields']['Betreff'] == 'Edited in Thunderbird'
+    d = task_device.items['tasks:1']; d['fields']['Erledigt'] = 0
+    d['semantic'] = model.semantic('tasks', d['fields'])
+    task_sync(); assert task_adapter.snapshot()[task_href]['fields']['Erledigt'] == 0
+    task_device.items.clear(); task_sync(); assert task_adapter.snapshot() == {}
+    task_device.items['tasks:2'] = device('tasks', 'Delete from Thunderbird', rid=2)
+    task_sync(); snap = task_adapter.snapshot(); h = next(iter(snap))
+    task_adapter.delete(h, snap[h]); task_sync(); assert task_device.items == {}
+    broker.call('list', {'taskLinksTest': True, 'pending': {'uid': 'uncertain-create'}})
+    try: task_adapter.snapshot()
+    except RuntimeError as exc: assert 'ID nicht bestätigt' in str(exc)
+    else: raise AssertionError('Uncertain create must block synchronization')
+    broker.call('list', {'taskLinksTest': True, 'pending': None})
+    broker.call('list', {'taskLinksTest': True, 'native': True})
+    task_sync(); assert next(iter(task_device.items.values()))['fields']['Betreff'] == 'Created on Google'
+    broker.call('list', {'taskLinksTest': True, 'native': True, 'subtask': True})
+    try: task_adapter.snapshot()
+    except RuntimeError as exc: assert 'Unteraufgaben' in str(exc)
+    else: raise AssertionError('Task hierarchy must be blocked')
     simulated = FakeDevice(); simulated.items['events:1'] = device('events', 'From simulated IC35')
     adapter = Calendars(direct, broker, {'events': network['id']})
     state_dir = out / 'sync-state'
@@ -200,7 +272,7 @@ try:
     try: broker.call('snapshot', target)
     except RuntimeError: pass
     else: raise AssertionError('Unavailable CalDAV must not be accepted as an empty calendar')
-    result = {'Thunderbird': calendars['version'], 'real_addon_RPC': 'ok', 'read_create_update_delete': 'ok',
+    result = {'Google_Tasks_simulated_provider_real_Thunderbird_bidirectional_completion_deletion': 'ok', 'Thunderbird': calendars['version'], 'real_addon_RPC': 'ok', 'read_create_update_delete': 'ok',
               'uncached_CalDAV_lost_create_modify_ack': 'ok', 'timeout_still_allows_list_and_blocks_retry': 'ok',
               'real_cached_CalDAV_upstream_and_downstream': 'ok', 'unavailable_CalDAV_stops': True,
               'stale_version_rejected': True, 'test_profile_only': True, 'full_sync_simulated_IC35_real_Thunderbird_CalDAV': 'ok'}

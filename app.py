@@ -25,7 +25,7 @@ import sync_sounds
 import thunderbird_rpc
 import thunderbird_calendar
 
-VERSION = '3.4.0a11'
+VERSION = '3.4.0b1'
 ROOT = Path(os.environ.get('IC35_TB_DATA_DIR') or Path(os.environ.get('APPDATA', Path.home())) / 'IC35ThunderbirdAlpha')
 PORT = 5233
 BASE = f'http://127.0.0.1:{PORT}'
@@ -77,7 +77,7 @@ class App(tk.Tk):
             box.pack(side='left', fill='x', expand=True)
         actions = ttk.Frame(choices); actions.pack(pady=5)
         self.pair_btn = ttk.Button(actions, text='Thunderbird-Add-on koppeln', command=self.pair_addon); self.pair_btn.pack(side='left', padx=4)
-        self.refresh_btn = ttk.Button(actions, text='Kalender aus Thunderbird laden', command=self.load_calendars); self.refresh_btn.pack(side='left', padx=4)
+        self.refresh_btn = ttk.Button(actions, text='Kalender und Aufgabenlisten laden', command=self.load_calendars); self.refresh_btn.pack(side='left', padx=4)
         self.canvas = tk.Canvas(self, width=84, height=84, highlightthickness=0)
         self.canvas.pack()
         self.arrows = [self.canvas.create_line(0, 0, 1, 1, width=5, fill=c, arrow=tk.LAST,
@@ -180,7 +180,7 @@ class App(tk.Tk):
             messagebox.showinfo('Thunderbird-Add-on koppeln',
                 'Der Kopplungscode wurde in die Zwischenablage kopiert.\n\n'
                 '1. In Thunderbird → Add-ons und Themes → Zahnrad → Add-on aus Datei installieren.\n'
-                '2. IC35-Thunderbird-Bridge-3.4.0a9.xpi auswählen.\n'
+                '2. IC35-Thunderbird-Bridge-3.4.0b1.xpi auswählen.\n'
                 '3. In den Add-on-Einstellungen den Code einfügen und „Verbinden“ drücken.\n'
                 '4. Hier „Kalender aus Thunderbird laden“ anklicken und „twitch“ bei Terminen auswählen.\n\n'
                 'Die XPI-Datei liegt neben der installierten EXE. Thunderbird geöffnet lassen.')
@@ -207,7 +207,8 @@ class App(tk.Tk):
             labels = ['Lokale IC35-Sammlung']
             selected = None
             for info in response['calendars']:
-                if not info[kind] or info['disabled'] or info['readOnly'] or info['type'] not in ('storage', 'caldav'):
+                supported = info['type'] in ('storage', 'caldav') or (kind == 'tasks' and info['type'] in ('gdata', 'ext-{a62ef8ec-5fdc-40c2-873c-223b8a6925cc}'))
+                if not info[kind] or info['disabled'] or info['readOnly'] or not supported:
                     continue
                 label = f'{info["name"]} · Thunderbird [{info["id"][:8]}]'
                 labels.append(label); self.calendar_ids[label] = info['id']
