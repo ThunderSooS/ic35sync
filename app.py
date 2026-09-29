@@ -25,7 +25,7 @@ import sync_sounds
 import thunderbird_rpc
 import thunderbird_calendar
 
-VERSION = '3.4.0b1'
+VERSION = '3.4.0b3'
 ROOT = Path(os.environ.get('IC35_TB_DATA_DIR') or Path(os.environ.get('APPDATA', Path.home())) / 'IC35ThunderbirdAlpha')
 PORT = 5233
 BASE = f'http://127.0.0.1:{PORT}'
@@ -36,10 +36,12 @@ class App(tk.Tk):
         super().__init__()
         ROOT.mkdir(parents=True, exist_ok=True)
         self.title(f'IC35 Sync Beta · {VERSION}')
-        self.geometry('900x840')
-        self.minsize(820, 720)
+        self.geometry('1400x840')
+        self.minsize(1180, 720)
         self.messages = queue.Queue()
         self.busy = False
+        self.calendars_loaded = False
+        self.auto_load_retry = 0
         self.server = None
         self.server_log = None
         self.broker = None
@@ -54,15 +56,17 @@ class App(tk.Tk):
         self.zone = tk.StringVar(value=config.get('zone', 'Europe/Berlin'))
         self.stage = tk.StringVar(value='Bereit · Thunderbird vor dem Geräteabgleich synchronisieren')
         self.server_status = tk.StringVar(value='Lokaler Thunderbird-Dienst gestoppt')
-        ttk.Label(self, text='Siemens IC35 ↔ Thunderbird', font=('Segoe UI', 21)).pack(pady=(16, 5))
-        ttk.Label(self, text='Kontakte · Kalender · Aufgaben — lokal auf deinem PC').pack()
-        row = ttk.Frame(self, padding=12); row.pack()
+        left = ttk.Frame(self, padding=(8, 0)); left.pack(side='left', fill='y')
+        right = ttk.LabelFrame(self, text='Protokoll', padding=6); right.pack(side='left', fill='both', expand=True, padx=(0, 12), pady=12)
+        ttk.Label(left, text='Siemens IC35 ↔ Thunderbird', font=('Segoe UI', 21)).pack(pady=(16, 5))
+        ttk.Label(left, text='Kontakte · Kalender · Aufgaben — lokal auf deinem PC').pack()
+        row = ttk.Frame(left, padding=12); row.pack()
         ttk.Label(row, text='Dock-Anschluss:').pack(side='left')
         self.ports = ttk.Combobox(row, textvariable=self.port, width=12, values=[x.device for x in list_ports.comports()])
         self.ports.pack(side='left', padx=8)
         ttk.Label(row, text='IC35-Zeitzone:').pack(side='left')
         self.zone_entry = ttk.Entry(row, textvariable=self.zone, width=22); self.zone_entry.pack(side='left', padx=8)
-        choices = ttk.Frame(self, padding=6); choices.pack(fill='x', padx=22)
+        choices = ttk.Frame(left, padding=6); choices.pack(fill='x', padx=22)
         self.calendar_vars, self.calendar_boxes = {}, {}
         for kind, label in [('events', 'Termine aus:'), ('tasks', 'Aufgaben aus:')]:
             line = ttk.Frame(choices); line.pack(fill='x', pady=3)
@@ -71,32 +75,34 @@ class App(tk.Tk):
             title = ('Gespeicherter Thunderbird-Kalender [' + saved + ']') if saved else 'Lokale IC35-Sammlung'
             self.calendar_ids[title] = saved
             var = tk.StringVar(value=title)
-            box = ttk.Combobox(line, textvariable=var, state='readonly', width=66)
+            box = ttk.Combobox(line, textvariable=var, state='readonly', width=50)
             self.calendar_vars[kind], self.calendar_boxes[kind] = var, box
-            box.configure(width=66, values=[title, 'Lokale IC35-Sammlung'] if saved else ['Lokale IC35-Sammlung'])
+            box.configure(width=50, values=[title, 'Lokale IC35-Sammlung'] if saved else ['Lokale IC35-Sammlung'])
             box.pack(side='left', fill='x', expand=True)
         actions = ttk.Frame(choices); actions.pack(pady=5)
         self.pair_btn = ttk.Button(actions, text='Thunderbird-Add-on koppeln', command=self.pair_addon); self.pair_btn.pack(side='left', padx=4)
         self.refresh_btn = ttk.Button(actions, text='Kalender und Aufgabenlisten laden', command=self.load_calendars); self.refresh_btn.pack(side='left', padx=4)
-        self.canvas = tk.Canvas(self, width=84, height=84, highlightthickness=0)
+        self.canvas = tk.Canvas(left, width=84, height=84, highlightthickness=0)
         self.canvas.pack()
         self.arrows = [self.canvas.create_line(0, 0, 1, 1, width=5, fill=c, arrow=tk.LAST,
                          arrowshape=(12, 14, 6), smooth=True) for c in ('#1664a5', '#39a3bb')]
         self.draw()
-        self.sync_btn = ttk.Button(self, text='ALLES MIT THUNDERBIRD SYNCHRONISIEREN', command=lambda: self.launch(False))
+        self.sync_btn = ttk.Button(left, text='ALLES MIT THUNDERBIRD SYNCHRONISIEREN', command=lambda: self.launch(False))
         self.sync_btn.pack(ipady=9, pady=6)
-        ttk.Label(self, textvariable=self.stage, wraplength=800, font=('Segoe UI', 11)).pack(pady=8)
-        tools = ttk.Frame(self, padding=8); tools.pack(fill='x')
+        ttk.Label(left, textvariable=self.stage, wraplength=620, font=('Segoe UI', 11)).pack(pady=8)
+        tools = ttk.Frame(left, padding=8); tools.pack(fill='x')
         self.backup_btn = ttk.Button(tools, text='Nur Vollbackup', command=lambda: self.launch(True)); self.backup_btn.pack(side='left', padx=4)
         ttk.Button(tools, text='Thunderbird einrichten', command=self.setup_help).pack(side='left', padx=4)
         ttk.Button(tools, text='Geschützte Datei exportieren', command=self.export_file).pack(side='left', padx=4)
         ttk.Button(tools, text='Datenordner', command=lambda: os.startfile(ROOT)).pack(side='left', padx=4)
-        ttk.Label(self, textvariable=self.server_status).pack()
-        self.log_text = tk.Text(self, wrap='word', height=18, font=('Consolas', 9))
-        self.log_text.pack(fill='both', expand=True, padx=16, pady=12)
+        ttk.Label(left, textvariable=self.server_status).pack()
+        self.log_text = tk.Text(right, wrap='word', font=('Consolas', 9))
+        log_scroll = ttk.Scrollbar(right, orient='vertical', command=self.log_text.yview); log_scroll.pack(side='right', fill='y')
+        self.log_text.configure(yscrollcommand=log_scroll.set); self.log_text.pack(side='left', fill='both', expand=True)
         self.protocol('WM_DELETE_WINDOW', self.close)
         self.after(100, self.drain)
         self.after(400, self.start_server_ui)
+        self.after(1000, self.auto_load_calendars)
 
     def draw(self):
         for item, offset in zip(self.arrows, (10, 190)):
@@ -135,7 +141,12 @@ class App(tk.Tk):
                         sync_sounds.play(value)
                 elif kind == 'calendars':
                     self.show_calendars(value)
+                    self.calendars_loaded = True
                     self.refresh_btn.configure(state='normal')
+                elif kind == 'calendar_auto_error':
+                    self.refresh_btn.configure(state='normal')
+                    self.auto_load_retry = time.monotonic() + 15
+                    self.emit('log', 'Automatisches Laden: ' + value + ' · Neuer Versuch folgt.')
                 elif kind == 'calendar_error':
                     self.refresh_btn.configure(state='normal')
                     messagebox.showerror('Thunderbird-Verbindung', value)
@@ -180,14 +191,24 @@ class App(tk.Tk):
             messagebox.showinfo('Thunderbird-Add-on koppeln',
                 'Der Kopplungscode wurde in die Zwischenablage kopiert.\n\n'
                 '1. In Thunderbird → Add-ons und Themes → Zahnrad → Add-on aus Datei installieren.\n'
-                '2. IC35-Thunderbird-Bridge-3.4.0b1.xpi auswählen.\n'
+                '2. IC35-Thunderbird-Bridge-3.4.0b3.xpi auswählen.\n'
                 '3. In den Add-on-Einstellungen den Code einfügen und „Verbinden“ drücken.\n'
                 '4. Hier „Kalender aus Thunderbird laden“ anklicken und „twitch“ bei Terminen auswählen.\n\n'
                 'Die XPI-Datei liegt neben der installierten EXE. Thunderbird geöffnet lassen.')
         except Exception as exc:
             messagebox.showerror('Kopplung', str(exc))
 
-    def load_calendars(self):
+    def auto_load_calendars(self):
+        if self.calendars_loaded:
+            return
+        if (not self.busy and self.broker is not None and self.broker.last_seen
+                and time.monotonic() - self.broker.last_seen < 25
+                and time.monotonic() >= self.auto_load_retry
+                and str(self.refresh_btn['state']) != 'disabled'):
+            self.load_calendars(automatic=True)
+        self.after(1000, self.auto_load_calendars)
+
+    def load_calendars(self, automatic=False):
         try:
             broker = self.get_broker()
         except Exception as exc:
@@ -197,7 +218,7 @@ class App(tk.Tk):
             try:
                 self.emit('calendars', broker.call('list', timeout=20))
             except Exception as exc:
-                self.emit('calendar_error', str(exc))
+                self.emit('calendar_auto_error' if automatic else 'calendar_error', str(exc))
         threading.Thread(target=load, daemon=True).start()
 
     def show_calendars(self, response):

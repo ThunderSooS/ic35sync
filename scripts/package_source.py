@@ -4,8 +4,8 @@ from pathlib import Path
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = '3.4.0b1'
-FILES = ['app.py', 'desktop_entry.py', 'dav_model.py', 'dav_sync.py', 'bridge.py', 'ic35_protocol.py',
+VERSION = '3.4.0b3'
+FILES = ['thunderbird_start.py', 'app.py', 'desktop_entry.py', 'dav_model.py', 'dav_sync.py', 'bridge.py', 'ic35_protocol.py',
          'todo_protocol.py', 'manager_protocol.py', 'private_storage.py', 'sync_sounds.py',
          'radicale_windows_launcher.py', 'requirements.txt', 'build-requirements.txt', 'LICENSE',
          'THIRD_PARTY_NOTICES.md', 'README.md', 'README.en.md', 'PRIVACY.md', 'CHANGELOG.md',

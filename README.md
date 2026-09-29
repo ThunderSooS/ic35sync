@@ -24,7 +24,7 @@ Kontakte verwenden weiterhin das lokale CardDAV-Adressbuch. Eine alternative Aus
 
 ## Installation und erster Start
 
-1. `IC35-Sync-Beta-3.4.0b1-Setup.exe` ausführen. Python muss nicht separat installiert werden. Das Setup installiert für das aktuelle Windows-Konto, ohne Administratorrechte.
+1. `IC35-Sync-Beta-3.4.0b3-Setup.exe` ausführen. Python muss nicht separat installiert werden. Das Setup installiert für das aktuelle Windows-Konto, ohne Administratorrechte.
 2. **IC35 Sync Beta** starten und den COM-Anschluss des Docks auswählen. Die Zeitzone muss zur Uhr des IC35 passen (Vorgabe `Europe/Berlin`).
 3. Das mitgelieferte Add-on `IC35-Thunderbird-Bridge-3.4.0b1.xpi` in Thunderbird installieren und Thunderbird neu starten.
 4. In der App **Thunderbird-Add-on koppeln** drücken, den Kopplungscode in den Add-on-Einstellungen einfügen und **Verbinden** drücken.
@@ -112,3 +112,5 @@ Unterstützt werden Titel, Notizen, Fälligkeitsdatum und Erledigt-Status sowie 
 Google Tasks unterstützt kein separates Startdatum und keine IC35-Prioritäten. Aufgaben müssen normale Priorität haben; ein Startdatum darf höchstens dem Fälligkeitsdatum entsprechen. Listen mit Unteraufgaben werden gesperrt. Wiederkehrende Google-Aufgaben werden vom Provider nicht zuverlässig als Serien abgebildet und sind nicht unterstützt. Für einen ersten Test eine Liste mit einfachen Aufgaben verwenden.
 
 Die Integration wurde mit einem nachgebildeten Google-Provider in einem echten, isolierten Thunderbird getestet. Der Abgleich mit einem echten Google-Konto und dem physischen IC35 muss noch praktisch bestätigt werden.
+
+Beim Start öffnet die Sync-App Thunderbird automatisch, sofern es noch nicht läuft. Falls die Installation nicht gefunden wird, Thunderbird manuell öffnen. Beim Schließen der Sync-App bleibt Thunderbird geöffnet.

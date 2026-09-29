@@ -58,4 +58,9 @@ if __name__ == '__main__':
         Path(sys.argv[-1]).write_text(json.dumps({'package_check': 'ok', 'version': VERSION, 'ui': 'ok', 'DPAPI': 'ok', 'sounds': 'present', 'addon_broker': 'ok'}), encoding='utf-8')
     else:
         from app import App
-        App().mainloop()
+        import threading
+        from thunderbird_start import ensure_started
+        app = App()
+        app.after(500, lambda: threading.Thread(
+            target=ensure_started, args=(lambda message: app.emit('log', message),), daemon=True).start())
+        app.mainloop()

@@ -1,3 +1,11 @@
+# 3.4.0b3 · Kalender automatisch laden
+
+Nach Verbindung des Thunderbird-Add-ons werden Kalender und Aufgabenlisten automatisch geladen. Gespeicherte Ziel-IDs bleiben ausgewählt. Bei Verbindungsfehlern erfolgt ein erneuter Versuch nach 15 Sekunden, ohne Popup. Während einer Synchronisation startet kein automatischer Ladevorgang.
+
+# 3.4.0b2 · Thunderbird automatisch starten
+
+Beim normalen App-Start wird Thunderbird geöffnet, falls es in der aktuellen Windows-Sitzung noch nicht läuft. Bereits laufende Instanzen bleiben unverändert. Bei fehlender Installation oder Startfehler erscheint ein Hinweis im Protokoll. Paketprüfungen und Hintergrunddienste starten Thunderbird nicht.
+
 # 3.4.0b1 · Google-Tasks-Listen über Thunderbird
 
 - Unterstützt Aufgabenlisten des Google-Providers, unabhängig vom Listennamen.

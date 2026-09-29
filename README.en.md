@@ -19,7 +19,7 @@ Keep both applications open. Network calendars must be online; errors or pending
 
 ## Setup
 
-1. Run `IC35-Sync-Beta-3.4.0b1-Setup.exe`. Python is bundled; installation is per user without administrator rights.
+1. Run `IC35-Sync-Beta-3.4.0b3-Setup.exe`. Python is bundled; installation is per user without administrator rights.
 2. Open **IC35 Sync Beta**, select the dock's COM port and check the IC35 time zone (default `Europe/Berlin`).
 3. Install the bundled `IC35-Thunderbird-Bridge-3.4.0b1.xpi` add-on in Thunderbird and restart Thunderbird.
 4. In the app, click **Thunderbird-Add-on koppeln**, paste the pairing code into the add-on settings and click **Verbinden**.
@@ -85,3 +85,5 @@ Supports title, notes, due date, completion, creation, editing and deletion in b
 Only normal priority is supported. A separate start date is unsupported unless equal to the due date. Lists containing subtasks are blocked. Recurring Google tasks are not reliably exposed as recurring by the provider and are unsupported. Use simple tasks for the first test.
 
 Tests use a simulated Google provider inside real isolated Thunderbird. An actual Google account and physical IC35 still require a practical verification run.
+
+The app automatically starts Thunderbird if it is not already running. If its installation cannot be found, open Thunderbird manually. Closing the sync app leaves Thunderbird running.
