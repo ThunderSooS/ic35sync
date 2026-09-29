@@ -19,7 +19,7 @@ Keep both applications open. Network calendars must be online; errors or pending
 
 ## Setup
 
-1. Run `IC35-Sync-Beta-3.4.0b3-Setup.exe`. Python is bundled; installation is per user without administrator rights.
+1. Run `IC35-Sync-Beta-3.4.0b4-Setup.exe`. Python is bundled; installation is per user without administrator rights.
 2. Open **IC35 Sync Beta**, select the dock's COM port and check the IC35 time zone (default `Europe/Berlin`).
 3. Install the bundled `IC35-Thunderbird-Bridge-3.4.0b1.xpi` add-on in Thunderbird and restart Thunderbird.
 4. In the app, click **Thunderbird-Add-on koppeln**, paste the pairing code into the add-on settings and click **Verbinden**.
@@ -40,7 +40,7 @@ The regular workflow uses one dock connection, without a confirmation dialog or 
 - Tasks: title, note, start/due dates without time, open/completed and high/normal/low priority.
 - Creation, editing and deletion propagate both ways after the first successful association.
 
-Unsupported items are skipped with a reason in the log: recurring/all-day events, exceptions, invitations, task times/reminders/intermediate progress, complex contacts with additional names/addresses or duplicate phone slots, and text exceeding IC35 field sizes or Windows-1252. Photos and other Thunderbird-only properties are not copied to the IC35; properties without a device equivalent are retained when updating an existing resource. Categories are not synchronized bidirectionally. IC35 memos are outside this edition's scope.
+Unsupported items are skipped with a reason in the log: recurring/all-day events, exceptions, invitations, task times/reminders/intermediate progress, complex contacts with additional names/addresses or duplicate phone slots, and text exceeding IC35 field sizes or Windows-1252. Photos and other Thunderbird-only properties are not copied to the IC35; properties without a device equivalent are retained when updating an existing resource. Categories are not synchronized bidirectionally. IC35 memos are not synchronized, but “Notizen abrufen” (fetch notes) exports them read-only as text files into a folder of your choice (one file per note, named after subject and IC35 ID; existing files are updated, nothing is deleted).
 
 ## Safety and storage
 

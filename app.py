@@ -20,12 +20,13 @@ import bridge
 import dav_sync
 import ic35_protocol as proto
 import manager_protocol as manager
+import memo_export
 import private_storage
 import sync_sounds
 import thunderbird_rpc
 import thunderbird_calendar
 
-VERSION = '3.4.0b3'
+VERSION = '3.4.0b4'
 ROOT = Path(os.environ.get('IC35_TB_DATA_DIR') or Path(os.environ.get('APPDATA', Path.home())) / 'IC35ThunderbirdAlpha')
 PORT = 5233
 BASE = f'http://127.0.0.1:{PORT}'
@@ -56,6 +57,7 @@ class App(tk.Tk):
         self.zone = tk.StringVar(value=config.get('zone', 'Europe/Berlin'))
         self.stage = tk.StringVar(value='Bereit · Thunderbird vor dem Geräteabgleich synchronisieren')
         self.server_status = tk.StringVar(value='Lokaler Thunderbird-Dienst gestoppt')
+        self.memo_dir = tk.StringVar(value=config.get('memo_dir', ''))
         left = ttk.Frame(self, padding=(8, 0)); left.pack(side='left', fill='y')
         right = ttk.LabelFrame(self, text='Protokoll', padding=6); right.pack(side='left', fill='both', expand=True, padx=(0, 12), pady=12)
         ttk.Label(left, text='Siemens IC35 ↔ Thunderbird', font=('Segoe UI', 21)).pack(pady=(16, 5))
@@ -82,6 +84,11 @@ class App(tk.Tk):
         actions = ttk.Frame(choices); actions.pack(pady=5)
         self.pair_btn = ttk.Button(actions, text='Thunderbird-Add-on koppeln', command=self.pair_addon); self.pair_btn.pack(side='left', padx=4)
         self.refresh_btn = ttk.Button(actions, text='Kalender und Aufgabenlisten laden', command=self.load_calendars); self.refresh_btn.pack(side='left', padx=4)
+        memo_line = ttk.Frame(choices); memo_line.pack(fill='x', pady=3)
+        ttk.Label(memo_line, text='Notizen nach:', width=16).pack(side='left')
+        ttk.Entry(memo_line, textvariable=self.memo_dir, state='readonly').pack(side='left', fill='x', expand=True)
+        self.memo_pick_btn = ttk.Button(memo_line, text='Ordner wählen …', command=self.pick_memo_dir); self.memo_pick_btn.pack(side='left', padx=(6, 0))
+        self.memo_btn = ttk.Button(memo_line, text='Notizen abrufen', command=lambda: self.launch('memos')); self.memo_btn.pack(side='left', padx=(6, 0))
         self.canvas = tk.Canvas(left, width=84, height=84, highlightthickness=0)
         self.canvas.pack()
         self.arrows = [self.canvas.create_line(0, 0, 1, 1, width=5, fill=c, arrow=tk.LAST,
@@ -155,7 +162,7 @@ class App(tk.Tk):
                         self.after_cancel(self.prompt_timer)
                         self.prompt_timer = None
                     self.busy = False
-                    for widget in (self.sync_btn, self.backup_btn, self.ports, self.zone_entry):
+                    for widget in (self.sync_btn, self.backup_btn, self.memo_btn, self.memo_pick_btn, self.ports, self.zone_entry):
                         widget.configure(state='normal')
                     for widget in self.calendar_boxes.values():
                         widget.configure(state='readonly')
@@ -191,7 +198,7 @@ class App(tk.Tk):
             messagebox.showinfo('Thunderbird-Add-on koppeln',
                 'Der Kopplungscode wurde in die Zwischenablage kopiert.\n\n'
                 '1. In Thunderbird → Add-ons und Themes → Zahnrad → Add-on aus Datei installieren.\n'
-                '2. IC35-Thunderbird-Bridge-3.4.0b3.xpi auswählen.\n'
+                '2. IC35-Thunderbird-Bridge-3.4.0b1.xpi auswählen.\n'
                 '3. In den Add-on-Einstellungen den Code einfügen und „Verbinden“ drücken.\n'
                 '4. Hier „Kalender aus Thunderbird laden“ anklicken und „twitch“ bei Terminen auswählen.\n\n'
                 'Die XPI-Datei liegt neben der installierten EXE. Thunderbird geöffnet lassen.')
@@ -303,25 +310,47 @@ class App(tk.Tk):
         except Exception as exc:
             messagebox.showerror('Export', str(exc))
 
+    def save_settings(self, **changes):
+        path = ROOT / 'settings.json'
+        try:
+            config = json.loads(path.read_text(encoding='utf-8')) if path.exists() else {}
+        except (OSError, ValueError):
+            config = {}
+        config.update(changes)
+        path.write_text(json.dumps(config), encoding='utf-8')
+
+    def pick_memo_dir(self):
+        folder = filedialog.askdirectory(title='Ordner für IC35-Notizen wählen', initialdir=self.memo_dir.get() or None, mustexist=False)
+        if folder:
+            self.memo_dir.set(str(Path(folder)))
+            self.save_settings(memo_dir=self.memo_dir.get())
+
     def launch(self, backup):
         if self.busy:
             return
-        if str(self.refresh_btn['state']) == 'disabled':
+        memos = backup == 'memos'
+        if memos and not self.memo_dir.get().strip():
+            self.pick_memo_dir()
+            if not self.memo_dir.get().strip():
+                return
+        if not memos and str(self.refresh_btn['state']) == 'disabled':
             messagebox.showinfo('Kalender werden geladen', 'Bitte kurz warten, bis die Kalenderliste geladen ist.'); return
         port, zone = self.port.get().strip(), self.zone.get().strip()
         if not port:
             messagebox.showerror('Dock-Anschluss', 'Bitte COM-Anschluss auswählen.'); return
         try:
             ZoneInfo(zone)
-            self.start_server()
+            if not memos:
+                self.start_server()
             selections = {kind: self.calendar_ids[var.get()] for kind, var in self.calendar_vars.items()}
             if any(selections.values()) and not backup:
                 self.get_broker()
         except Exception as exc:
             messagebox.showerror('Vorbereitung', str(exc)); return
-        (ROOT / 'settings.json').write_text(json.dumps({'port': port, 'zone': zone, 'calendars': selections}), encoding='utf-8')
+        self.memo_target = Path(self.memo_dir.get())
+        self.save_settings(port=port, zone=zone, calendars=selections, memo_dir=self.memo_dir.get())
         self.busy = True
-        for widget in (self.sync_btn, self.backup_btn, self.ports, self.zone_entry):
+        for widget in (self.sync_btn, self.backup_btn, self.memo_btn, self.memo_pick_btn, self.ports, self.zone_entry):
             widget.configure(state='disabled')
         for widget in (*self.calendar_boxes.values(), self.pair_btn, self.refresh_btn):
             widget.configure(state='disabled')
@@ -364,7 +393,7 @@ class App(tk.Tk):
                 write_timeout=.75, xonxoff=False, rtscts=False, dsrdtr=False)
             ser.rts = False; ser.dtr = True
             ser.reset_input_buffer(); ser.reset_output_buffer()
-            if backup:
+            if backup is True:
                 manager.manager_connect(ser, log)
             else:
                 proto.PORT, proto.log = port, log
@@ -372,7 +401,7 @@ class App(tk.Tk):
                     raise RuntimeError('Dock-Verbindung fehlgeschlagen')
             self.emit('sound', 'connected')
             self.emit('stage', '2/3 · ✓ Dock-Tastendruck erkannt · Daten werden gelesen …')
-            if backup:
+            if backup is True:
                 path = ROOT / 'backups' / f'database_{stamp}.org.dpapi'
                 path.parent.mkdir(parents=True, exist_ok=True)
                 manager.backup_database(ser, path, log, protected=True)
@@ -386,6 +415,17 @@ class App(tk.Tk):
                 if auth is None or auth[:2] != b'\x01\x01':
                     raise RuntimeError('IC35-Anmeldung fehlgeschlagen')
                 proto.read_sync_info(ser)
+                if backup == 'memos':
+                    folder = self.memo_target
+                    self.emit('stage', '3/3 · Notizen werden gespeichert …')
+                    records = memo_export.read_memos(ser, log)
+                    proto.disconnect(ser)
+                    stats = memo_export.write_memos(records, folder, log)
+                    log('Vorgang erfolgreich abgeschlossen.')
+                    self.emit('done', f'IC35-Notizen gespeichert in:\n{folder}\n\n'
+                                      f'Neu: {stats["created"]} · Aktualisiert: {stats["updated"]} · '
+                                      f'Umbenannt: {stats["renamed"]} · Unverändert: {stats["unchanged"]}')
+                    return
                 proto.DATABASES = list(dav_sync.model.DB.values())
                 proto.EXPORTFILE = ROOT / 'exports' / f'{stamp}.json.dpapi'
                 proto.EXPORTFILE.parent.mkdir(parents=True, exist_ok=True)

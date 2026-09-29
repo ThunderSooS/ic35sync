@@ -24,7 +24,7 @@ Kontakte verwenden weiterhin das lokale CardDAV-Adressbuch. Eine alternative Aus
 
 ## Installation und erster Start
 
-1. `IC35-Sync-Beta-3.4.0b3-Setup.exe` ausführen. Python muss nicht separat installiert werden. Das Setup installiert für das aktuelle Windows-Konto, ohne Administratorrechte.
+1. `IC35-Sync-Beta-3.4.0b4-Setup.exe` ausführen. Python muss nicht separat installiert werden. Das Setup installiert für das aktuelle Windows-Konto, ohne Administratorrechte.
 2. **IC35 Sync Beta** starten und den COM-Anschluss des Docks auswählen. Die Zeitzone muss zur Uhr des IC35 passen (Vorgabe `Europe/Berlin`).
 3. Das mitgelieferte Add-on `IC35-Thunderbird-Bridge-3.4.0b1.xpi` in Thunderbird installieren und Thunderbird neu starten.
 4. In der App **Thunderbird-Add-on koppeln** drücken, den Kopplungscode in den Add-on-Einstellungen einfügen und **Verbinden** drücken.
@@ -60,7 +60,7 @@ Ein normaler Abgleich benötigt eine Dock-Verbindung und startet ohne zusätzlic
 
 Kalenderzeiten werden in die eingestellte IC35-Zeitzone umgerechnet. Das Gerät kennt selbst keine Zeitzonen; neue Gerätetermine werden als lokale Uhrzeiten bereitgestellt. Thunderbird entsprechend auf dieselbe Zeitzone einstellen.
 
-Diese Alpha überspringt nicht sicher darstellbare Einträge und nennt den Grund im Protokoll: Terminserien und Ausnahmen, ganztägige Termine, Einladungen, Aufgaben mit Uhrzeit/Erinnerungen/Zwischenstatus sowie zu lange Texte oder Zeichen außerhalb Windows-1252. Komplexe Kontakte mit mehreren Anschriften, zusätzlichen Namensbestandteilen oder mehreren Nummern desselben Typs werden ebenfalls übersprungen. Fotos und zusätzliche Thunderbird-Felder werden nicht auf den IC35 übertragen; bei Änderungen einer vorhandenen Ressource bleiben nicht abgebildete Eigenschaften erhalten. Kategorien werden nicht bidirektional abgeglichen. IC35-Memos sind nicht Bestandteil dieser Ausgabe.
+Diese Alpha überspringt nicht sicher darstellbare Einträge und nennt den Grund im Protokoll: Terminserien und Ausnahmen, ganztägige Termine, Einladungen, Aufgaben mit Uhrzeit/Erinnerungen/Zwischenstatus sowie zu lange Texte oder Zeichen außerhalb Windows-1252. Komplexe Kontakte mit mehreren Anschriften, zusätzlichen Namensbestandteilen oder mehreren Nummern desselben Typs werden ebenfalls übersprungen. Fotos und zusätzliche Thunderbird-Felder werden nicht auf den IC35 übertragen; bei Änderungen einer vorhandenen Ressource bleiben nicht abgebildete Eigenschaften erhalten. Kategorien werden nicht bidirektional abgeglichen. IC35-Notizen (Memos) werden nicht abgeglichen, können aber über „Notizen abrufen“ nur lesend als Textdateien in einen frei wählbaren Ordner gespeichert werden (eine Datei pro Notiz, benannt nach Betreff und IC35-ID; vorhandene Dateien werden aktualisiert, nichts wird gelöscht).
 
 ## Konflikte, Sicherungen und Fehler
 
