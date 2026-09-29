@@ -1,4 +1,4 @@
-# Datenverarbeitung / Data handling · IC35 Sync Beta 3.4.0b4
+# Datenverarbeitung / Data handling · IC35 Sync Beta 3.4.0b5
 
 Herausgeber / Publisher: Christian Thomas. Kontakt / Contact: c.thomas.nrw@gmail.com.
 

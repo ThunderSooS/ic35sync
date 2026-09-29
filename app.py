@@ -26,7 +26,7 @@ import sync_sounds
 import thunderbird_rpc
 import thunderbird_calendar
 
-VERSION = '3.4.0b4'
+VERSION = '3.4.0b5'
 ROOT = Path(os.environ.get('IC35_TB_DATA_DIR') or Path(os.environ.get('APPDATA', Path.home())) / 'IC35ThunderbirdAlpha')
 PORT = 5233
 BASE = f'http://127.0.0.1:{PORT}'
@@ -197,7 +197,7 @@ class App(tk.Tk):
             messagebox.showinfo('Thunderbird-Add-on koppeln',
                 'Der Kopplungscode wurde in die Zwischenablage kopiert.\n\n'
                 '1. In Thunderbird → Add-ons und Themes → Zahnrad → Add-on aus Datei installieren.\n'
-                '2. IC35-Thunderbird-Bridge-3.4.0b1.xpi auswählen.\n'
+                '2. IC35-Thunderbird-Bridge-3.4.0b5.xpi auswählen.\n'
                 '3. In den Add-on-Einstellungen den Code einfügen und „Verbinden“ drücken.\n'
                 '4. Hier „Kalender und Aufgabenlisten laden“ anklicken und den gewünschten Kalender bei Terminen auswählen.\n\n'
                 'Die XPI-Datei liegt neben der installierten EXE. Thunderbird geöffnet lassen.')
@@ -252,7 +252,7 @@ class App(tk.Tk):
             return
         with socket.socket() as probe:
             if probe.connect_ex(('127.0.0.1', PORT)) == 0:
-                raise RuntimeError('Port 5233 ist belegt. Andere Thunderbird-Alpha schließen.')
+                raise RuntimeError('Port 5233 ist belegt. Andere IC35-Sync-Instanz schließen.')
         if (ROOT / 'thunderbird_state.dpapi').exists() or any((ROOT / 'sync_states').glob('*/thunderbird_state.dpapi')):
             for name in ('calendar', 'addressbook'):
                 if not (ROOT / 'radicale' / 'collection-root' / 'ic35' / name / '.Radicale.props').exists():

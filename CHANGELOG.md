@@ -1,3 +1,29 @@
+# 3.4.0b5 · Texte aufgeräumt / Text cleanup
+
+## Deutsch
+
+### Geändert
+- Hilfetexte in der App und die Einstellungsseite des Add-ons nennen keine persönlichen Kalendernamen mehr als Beispiel.
+- Die Bezeichnung „Alpha“ in Meldungen der App und des Add-ons wurde entfernt.
+- Die Kopplungsanleitung nennt jetzt den richtigen Button **Kalender und Aufgabenlisten laden**.
+- Neues Thunderbird-Add-on `IC35-Thunderbird-Bridge-3.4.0b5.xpi` (intern 3.4.0.13) mit den geänderten Texten; die Funktion ist unverändert.
+
+### Hinweis
+Das Add-on kann über die vorhandene Version installiert werden, die Kopplung bleibt erhalten. Das Setup ist nicht signiert. Falls Windows SmartScreen erscheint, bitte über **Weitere Informationen → Trotzdem ausführen** bestätigen.
+
+---
+
+## English
+
+### Changed
+- Help texts in the app and the add-on settings page no longer use personal calendar names as examples.
+- The term “Alpha” was removed from app and add-on messages.
+- The pairing instructions now name the correct button **Kalender und Aufgabenlisten laden** (load calendars and task lists).
+- New Thunderbird add-on `IC35-Thunderbird-Bridge-3.4.0b5.xpi` (internal 3.4.0.13) with the updated texts; functionality is unchanged.
+
+### Note
+The add-on can be installed over the existing version; pairing is retained. The setup is not signed. If Windows SmartScreen appears, please confirm via **More info → Run anyway**.
+
 # 3.4.0b4 · IC35-Notizen beim Sync speichern / Save IC35 notes during sync
 
 ## Deutsch

@@ -1,4 +1,4 @@
-# IC35 Sync Beta · 3.4.0b4
+# IC35 Sync Beta · 3.4.0b5
 
 **IC35 Sync Beta for 64-bit Windows 10/11.** Two-way synchronization of contacts, individual calendar events and tasks with a Siemens IC35; IC35 notes are saved as text files in a folder of your choice during each sync. The sync app needs no cloud login or credential JSON files. The bundled add-on connects existing Thunderbird calendars, including Google CalDAV and other network calendars. Thunderbird continues handling the account connection. The application interface is currently German.
 
@@ -8,7 +8,7 @@
 
 Keep your existing calendar and phone configuration. The path is `IC35 ↔ sync app ↔ Thunderbird add-on ↔ existing calendar service ↔ phone`.
 
-1. Install the new setup and install `IC35-Thunderbird-Bridge-3.4.0b1.xpi` in Thunderbird using **Add-ons and Themes → gear menu → Install Add-on From File**. The installer places this file beside the EXE; it is also a separate release asset.
+1. Install the new setup and install `IC35-Thunderbird-Bridge-3.4.0b5.xpi` in Thunderbird using **Add-ons and Themes → gear menu → Install Add-on From File**. The installer places this file beside the EXE; it is also a separate release asset.
 2. In the sync app, click **Thunderbird-Add-on koppeln**. Paste the copied pairing code into the add-on's settings and click **Verbinden**.
 3. Click **Kalender und Aufgabenlisten laden** in the app and choose the existing calendar you want under **Termine aus**. It is shown with the suffix **· Thunderbird**.
 4. Choose a task-capable calendar separately under **Aufgaben aus**, or keep **Lokale IC35-Sammlung**. Google Tasks lists are available through Thunderbird’s Provider for Google Calendar add-on.
@@ -19,9 +19,9 @@ Keep both applications open. Network calendars must be online; errors or pending
 
 ## Setup
 
-1. Run `IC35-Sync-Beta-3.4.0b4-Setup.exe`. Python is bundled; installation is per user without administrator rights.
+1. Run `IC35-Sync-Beta-3.4.0b5-Setup.exe`. Python is bundled; installation is per user without administrator rights.
 2. Open **IC35 Sync Beta**, select the dock's COM port and check the IC35 time zone (default `Europe/Berlin`).
-3. Install the bundled `IC35-Thunderbird-Bridge-3.4.0b1.xpi` add-on in Thunderbird and restart Thunderbird.
+3. Install the bundled `IC35-Thunderbird-Bridge-3.4.0b5.xpi` add-on in Thunderbird and restart Thunderbird.
 4. In the app, click **Thunderbird-Add-on koppeln**, paste the pairing code into the add-on settings and click **Verbinden**.
 5. Calendars and task lists load automatically after pairing (manually via **Kalender und Aufgabenlisten laden**). Select the existing calendar and task collection shown with **· Thunderbird**.
 6. Optionally choose a folder for IC35 notes under **Notizen nach:** (notes to) using **Ordner wählen …** (choose folder).
@@ -80,7 +80,7 @@ IC35 events matching an existing Thunderbird recurrence are skipped even if remi
 
 ## Google Tasks through Thunderbird
 
-Google Tasks lists are supported since 3.4.0b1. This requires the add-on `IC35-Thunderbird-Bridge-3.4.0b1.xpi` (internal add-on version 3.4.0.12); restart Thunderbird after installing it. Existing pairing is retained. Configure your Google Tasks list in Thunderbird using Provider for Google Calendar. Click **Kalender und Aufgabenlisten laden** and select the list under **Aufgaben aus**.
+Google Tasks lists are supported since 3.4.0b1. This requires the IC35 add-on (currently `IC35-Thunderbird-Bridge-3.4.0b5.xpi`, internal version 3.4.0.13); restart Thunderbird after installing it. Existing pairing is retained. Configure your Google Tasks list in Thunderbird using Provider for Google Calendar. Click **Kalender und Aufgabenlisten laden** and select the list under **Aufgaben aus**.
 
 Supports title, notes, due date, completion, creation, editing and deletion in both directions. Server-assigned IDs are mapped persistently in the Thunderbird profile. Keep this profile and the app’s sync state. An uncertain creation blocks synchronization rather than retrying; provide the log for investigation instead of deleting state files.
 

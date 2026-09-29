@@ -1,4 +1,4 @@
-#define AppVersion "3.4.0b4"
+#define AppVersion "3.4.0b5"
 #ifndef BuildTest
   #define BuildTest 0
 #endif
@@ -36,7 +36,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: desktopicon; Description: "Desktop-Verknüpfung / Desktop shortcut"; Flags: unchecked
 [Files]
 Source: "dist\IC35Thunderbird.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "release\IC35-Thunderbird-Bridge-3.4.0b1.xpi"; DestDir: "{app}"; Flags: ignoreversion
+Source: "release\IC35-Thunderbird-Bridge-3.4.0b5.xpi"; DestDir: "{app}"; Flags: ignoreversion
 Source: "LICENSE"; DestDir: "{app}"; Flags: ignoreversion
 Source: "README.md"; DestDir: "{app}"; Flags: ignoreversion
 Source: "README.en.md"; DestDir: "{app}"; Flags: ignoreversion

@@ -1,3 +1,13 @@
+# Verification · 3.4.0b5
+
+## Deutsch
+- Nur Textänderungen in App und Add-on; 67 automatisierte Tests wie in 3.4.0b4 (unter Wine: Radicale-Integrationstest schlägt wegen des Wine-Dateisystems fehl; `smoke_windows.py` und die Installer-Prüfung liefen dort nicht).
+- Die gebaute XPI enthält Version 3.4.0.13 und keine persönlichen Beispielnamen.
+
+## English
+- Text-only changes in app and add-on; 67 automated tests as in 3.4.0b4 (under Wine the Radicale integration test fails due to the Wine file system; `smoke_windows.py` and the installer check were not run there).
+- The built XPI contains version 3.4.0.13 and no personal example names.
+
 # Verification · 3.4.0b4
 
 ## Deutsch

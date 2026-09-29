@@ -48,7 +48,7 @@ def semantic(kind, fields):
               for k, v in fields.items() if k not in ('category', 'category-id', '(def.)1', '(def.)2')}
     if kind == 'events':
         if int(fields.get('AlrmRep') or 0) & 0x0F:
-            raise ValueError('Terminserie: in dieser Thunderbird-Alpha noch nicht unterstützt')
+            raise ValueError('Terminserie: in dieser Version noch nicht unterstützt')
         # DCS15 fills this unused date even for non-recurring events.
         if fields.get('EndRepeat'):
             datetime.strptime(fields['EndRepeat'], '%Y%m%d')
@@ -172,7 +172,7 @@ def duplicate_matches_journal(item, expected):
 
 def _wall(value, zone):
     if not isinstance(value, datetime):
-        raise ValueError('Ganztägiger Termin: in dieser Alpha noch nicht unterstützt')
+        raise ValueError('Ganztägiger Termin: in dieser Version noch nicht unterstützt')
     if value.tzinfo:
         value = value.astimezone(ZoneInfo(zone)).replace(tzinfo=None)
     return value

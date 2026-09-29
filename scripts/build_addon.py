@@ -3,7 +3,7 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 FILES = ('manifest.json', 'schema.json', 'api.js', 'background.js', 'options.html', 'options.js')
-target = ROOT / 'release/IC35-Thunderbird-Bridge-3.4.0b1.xpi'
+target = ROOT / 'release/IC35-Thunderbird-Bridge-3.4.0b5.xpi'
 target.parent.mkdir(exist_ok=True)
 with zipfile.ZipFile(target, 'w', zipfile.ZIP_DEFLATED) as archive:
     for name in FILES:

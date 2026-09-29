@@ -14,7 +14,7 @@ with tempfile.TemporaryDirectory(prefix='ic35-install-check-') as tmp:
     try:
         assert (target / 'licenses/pyserial/LICENSE.txt').exists()
         assert (target / 'README.en.md').exists()
-        assert (target / 'IC35-Thunderbird-Bridge-3.4.0b1.xpi').exists()
+        assert (target / 'IC35-Thunderbird-Bridge-3.4.0b5.xpi').exists()
         subprocess.run([sys.executable, str(ROOT / 'scripts/smoke_windows.py'),
                         str(target / 'IC35Thunderbird.exe')], check=True, timeout=90)
     finally:
