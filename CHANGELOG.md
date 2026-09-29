@@ -8,6 +8,10 @@
 - Eine Datei pro Notiz, benannt nach Betreff und IC35-ID, z. B. `Einkauf [IC35-000012].txt`.
 - Geänderte Notizen werden aktualisiert, bei geändertem Betreff wird die Datei umbenannt. Es werden keine Dateien gelöscht.
 - Das Protokoll wird rechts neben der Bedienung angezeigt (mit Scrollleiste, volle Fensterhöhe).
+- Die Abschlussmeldung nennt zusätzlich neue, aktualisierte und umbenannte Notizen.
+
+### Behoben
+- Die Einrichtungshilfe nennt jetzt den richtigen Dateinamen des Thunderbird-Add-ons (`IC35-Thunderbird-Bridge-3.4.0b1.xpi`).
 
 ### Hinweis
 Die Notizdateien im gewählten Ordner sind unverschlüsselt. An den Notizen auf dem IC35 wird nichts verändert. Ein Fehler beim Speichern der Notizen bricht den Sync nicht ab.
@@ -22,6 +26,10 @@ Die Notizdateien im gewählten Ordner sind unverschlüsselt. An den Notizen auf 
 - One file per note, named after subject and IC35 ID, e.g. `Einkauf [IC35-000012].txt`.
 - Changed notes are updated; if the subject changes, the file is renamed. No files are deleted.
 - The log is shown to the right of the controls (with scrollbar, full window height).
+- The completion message additionally lists new, updated and renamed notes.
+
+### Fixed
+- The setup help now shows the correct file name of the Thunderbird add-on (`IC35-Thunderbird-Bridge-3.4.0b1.xpi`).
 
 ### Note
 The note files in the selected folder are not encrypted. Notes on the IC35 are not modified. An error while saving notes does not abort the sync.

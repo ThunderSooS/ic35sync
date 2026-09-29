@@ -9,7 +9,8 @@ FILES = ['thunderbird_start.py', 'app.py', 'desktop_entry.py', 'dav_model.py', '
          'todo_protocol.py', 'manager_protocol.py', 'private_storage.py', 'sync_sounds.py',
          'radicale_windows_launcher.py', 'requirements.txt', 'build-requirements.txt', 'LICENSE',
          'THIRD_PARTY_NOTICES.md', 'README.md', 'README.en.md', 'PRIVACY.md', 'CHANGELOG.md',
-         'VALIDATION.md', '.gitignore', 'installer.iss', 'thunderbird_rpc.py', 'thunderbird_calendar.py']
+         'VALIDATION.md', '.gitignore', 'installer.iss', 'thunderbird_rpc.py', 'thunderbird_calendar.py',
+         'memo_export.py']
 selected = [ROOT / name for name in FILES]
 for folder in ('scripts', 'tests', 'sounds', 'build-licenses', 'addon'):
     selected += [p for p in (ROOT / folder).rglob('*') if p.is_file() and '__pycache__' not in p.parts and p.suffix != '.pyc']

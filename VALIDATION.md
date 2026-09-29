@@ -1,3 +1,19 @@
+# Verification · 3.4.0b4
+
+## Deutsch
+
+- 67 automatisierte Tests, davon 2 neue für die Notizablage (sichere Dateinamen, reservierte Windows-Namen, Anlegen, Aktualisieren, Umbenennen bei geändertem Betreff, keine Löschung, fremde Dateien bleiben unberührt, UTF-8 mit Windows-Zeilenumbrüchen).
+- Die Notizen werden nur lesend über die bestehenden IC35-Lesefunktionen (Datenbank öffnen, zählen, per Index lesen, schließen) abgerufen; es werden keine Records oder Change-Flags geschrieben.
+- Der Build dieser Ausgabe wurde unter Wine erstellt. Dort schlägt der Radicale-Integrationstest wegen des Wine-Dateisystems fehl; `smoke_windows.py` und die isolierte Installer-Prüfung liefen dort nicht. Beides sollte unter echtem Windows wiederholt werden.
+- Noch nicht an echter IC35-Hardware geprüft: Auslesen der Notizen nach dem Abgleich innerhalb derselben Dock-Verbindung.
+
+## English
+
+- 67 automated tests, including 2 new ones for note export (safe file names, reserved Windows names, create, update, rename on subject change, no deletion, unrelated files untouched, UTF-8 with Windows line endings).
+- Notes are read read-only using the existing IC35 read functions (open database, count, read by index, close); no records or change flags are written.
+- This release was built under Wine. There, the Radicale integration test fails due to the Wine file system; `smoke_windows.py` and the isolated installer check were not run. Both should be repeated on real Windows.
+- Not yet verified on real IC35 hardware: reading notes after reconciliation within the same dock connection.
+
 # Verification · 3.4.0b1
 
 ## Google Tasks adapter

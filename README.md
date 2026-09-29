@@ -1,6 +1,6 @@
-# IC35 Sync Beta · 3.4.0b1
+# IC35 Sync Beta · 3.4.0b4
 
-**IC35 Sync Beta für Windows 10/11 (64 Bit).** Kontakte, einzelne Termine und Aufgaben werden in beide Richtungen mit einem Siemens IC35 synchronisiert. Die Sync-App benötigt keine eigene Cloud-Anmeldung und keine JSON-Zugangsdaten. Das mitgelieferte Add-on verbindet bereits vorhandene Thunderbird-Kalender, einschließlich Google-CalDAV- und anderer Netzwerkkalender. Thunderbird verwaltet weiterhin deren Anmeldung und Serversynchronisation.
+**IC35 Sync Beta für Windows 10/11 (64 Bit).** Kontakte, einzelne Termine und Aufgaben werden in beide Richtungen mit einem Siemens IC35 synchronisiert; IC35-Notizen werden beim Sync als Textdateien in einem Ordner deiner Wahl abgelegt. Die Sync-App benötigt keine eigene Cloud-Anmeldung und keine JSON-Zugangsdaten. Das mitgelieferte Add-on verbindet bereits vorhandene Thunderbird-Kalender, einschließlich Google-CalDAV- und anderer Netzwerkkalender. Thunderbird verwaltet weiterhin deren Anmeldung und Serversynchronisation.
 
 [English](README.en.md) · [Datenschutz](PRIVACY.md) · [Änderungen](CHANGELOG.md) · [Lizenz](LICENSE)
 
@@ -28,7 +28,8 @@ Kontakte verwenden weiterhin das lokale CardDAV-Adressbuch. Eine alternative Aus
 2. **IC35 Sync Beta** starten und den COM-Anschluss des Docks auswählen. Die Zeitzone muss zur Uhr des IC35 passen (Vorgabe `Europe/Berlin`).
 3. Das mitgelieferte Add-on `IC35-Thunderbird-Bridge-3.4.0b1.xpi` in Thunderbird installieren und Thunderbird neu starten.
 4. In der App **Thunderbird-Add-on koppeln** drücken, den Kopplungscode in den Add-on-Einstellungen einfügen und **Verbinden** drücken.
-5. **Kalender und Aufgabenlisten laden** drücken und den gewünschten Kalender bzw. die Aufgabensammlung mit dem Zusatz **· Thunderbird** auswählen.
+5. Kalender und Aufgabenlisten werden nach der Kopplung automatisch geladen (manuell über **Kalender und Aufgabenlisten laden**). Den gewünschten Kalender bzw. die Aufgabensammlung mit dem Zusatz **· Thunderbird** auswählen.
+6. Optional unter **Notizen nach:** über **Ordner wählen …** einen Ordner für die IC35-Notizen festlegen.
 
 ### Kontakte
 
@@ -45,7 +46,9 @@ Thunderbird verwaltet die Anmeldung und Serversynchronisation des gewählten Kal
 1. App öffnen und in Thunderbird Adressbuch/Kalender synchronisieren. Während des Geräteabgleichs keine Einträge bearbeiten.
 2. **Alles mit Thunderbird synchronisieren** drücken. Die Startansage ertönt.
 3. Nach Aufforderung die Taste am IC35-Dock drücken. Der erkannte Verbindungsaufbau wird sichtbar bestätigt und mit einem Ton quittiert.
-4. Abschluss abwarten. Danach Thunderbird erneut synchronisieren, damit die Geräteänderungen angezeigt werden.
+4. Abschluss abwarten. Zum Schluss werden die IC35-Notizen in den gewählten Ordner gespeichert. Danach Thunderbird erneut synchronisieren, damit die Geräteänderungen angezeigt werden.
+
+Das Protokoll rechts neben der Bedienung zeigt jeden Schritt. Die Abschlussmeldung fasst die Änderungen einschließlich der Notizen zusammen.
 
 Ein normaler Abgleich benötigt eine Dock-Verbindung und startet ohne zusätzliche Bestätigungsfrage. Ein Vollbackup wird nur über **Nur Vollbackup** angefordert.
 
@@ -57,6 +60,7 @@ Ein normaler Abgleich benötigt eine Dock-Verbindung und startet ohne zusätzlic
 | Kalender | Einzeltermine mit Anfang/Ende, Betreff, Notiz und einer kompatiblen Anzeige-Erinnerung |
 | Aufgaben | Betreff, Notiz, Start-/Fälligkeitsdatum ohne Uhrzeit, offen/erledigt, hoch/normal/niedrig |
 | Änderungen | Anlegen, Bearbeiten und Löschen in beiden Richtungen nach erfolgreicher Zuordnung |
+| Notizen | Nur IC35 → Ordner: eine Textdatei pro Notiz (Betreff und Inhalt), kein Rückweg zum IC35 |
 
 Kalenderzeiten werden in die eingestellte IC35-Zeitzone umgerechnet. Das Gerät kennt selbst keine Zeitzonen; neue Gerätetermine werden als lokale Uhrzeiten bereitgestellt. Thunderbird entsprechend auf dieselbe Zeitzone einstellen.
 
@@ -77,7 +81,7 @@ Die bisherigen Datenordner, Zugangsdaten und Zuordnungen älterer Ausgaben werde
 
 ## Entwicklungsstand und Test
 
-43 automatisierte Tests prüfen Zuordnung, Änderungen/Löschungen, Konflikte, Wiederaufnahme, Kopplungsschutz und Kalenderauswahl. Ein isoliertes Thunderbird-153.0.1-Profil prüft das echte Add-on mit lokalen und zwischengespeicherten CalDAV-Kalendern, inklusive Änderungen auf beiden Seiten, Versionskonflikten und Serverausfall. Die Windows-EXE wird separat auf Startfähigkeit, Tk-Oberfläche und DPAPI geprüft. Dein Google-Kalender wurde für diese Tests nicht verwendet.
+67 automatisierte Tests prüfen Zuordnung, Änderungen/Löschungen, Konflikte, Wiederaufnahme, Kopplungsschutz, Kalenderauswahl und die Notizablage. Ein isoliertes Thunderbird-153.0.1-Profil prüft das echte Add-on mit lokalen und zwischengespeicherten CalDAV-Kalendern, inklusive Änderungen auf beiden Seiten, Versionskonflikten und Serverausfall. Die Windows-EXE wird separat auf Startfähigkeit, Tk-Oberfläche und DPAPI geprüft. Dein Google-Kalender wurde für diese Tests nicht verwendet.
 
 **Der neue Thunderbird-Gesamtabgleich ist noch nicht an echter IC35-Hardware bestätigt.** Der serielle Transport stammt aus der bisherigen Ausgabe. Vor produktiver Nutzung mit einem Testkontakt, einem Einzeltermin und einer Aufgabe jeweils beide Richtungen und Löschungen prüfen. Vor dem ersten Hardwaretest ein manuelles Vollbackup erstellen.
 
@@ -114,3 +118,14 @@ Google Tasks unterstützt kein separates Startdatum und keine IC35-Prioritäten.
 Die Integration wurde mit einem nachgebildeten Google-Provider in einem echten, isolierten Thunderbird getestet. Der Abgleich mit einem echten Google-Konto und dem physischen IC35 muss noch praktisch bestätigt werden.
 
 Beim Start öffnet die Sync-App Thunderbird automatisch, sofern es noch nicht läuft. Falls die Installation nicht gefunden wird, Thunderbird manuell öffnen. Beim Schließen der Sync-App bleibt Thunderbird geöffnet.
+
+## IC35-Notizen (ab 3.4.0b4)
+
+Unter **Notizen nach:** wird mit **Ordner wählen …** ein Zielordner festgelegt; die Auswahl bleibt gespeichert. Bei jeder normalen Synchronisation liest die App danach alle Notizen des IC35 nur lesend aus und legt sie dort ab:
+
+- eine Datei pro Notiz, benannt nach Betreff und IC35-ID, z. B. `Einkauf [IC35-000012].txt` (UTF-8, Windows-Zeilenumbrüche),
+- geänderte Notizen werden überschrieben, bei geändertem Betreff wird die Datei umbenannt,
+- es werden keine Dateien gelöscht, auch nicht, wenn eine Notiz auf dem IC35 entfernt wurde; eigene Dateien im Ordner bleiben unberührt,
+- Änderungen an den Textdateien werden nicht auf den IC35 übertragen.
+
+Ohne festgelegten Ordner werden Notizen übersprungen. Ein Fehler beim Speichern der Notizen wird im Protokoll gemeldet und bricht den Sync nicht ab. **Nur Vollbackup** speichert keine Notizdateien. Die Notizdateien sind nicht verschlüsselt (siehe [Datenschutz](PRIVACY.md)).
