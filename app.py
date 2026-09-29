@@ -199,7 +199,7 @@ class App(tk.Tk):
                 '1. In Thunderbird → Add-ons und Themes → Zahnrad → Add-on aus Datei installieren.\n'
                 '2. IC35-Thunderbird-Bridge-3.4.0b1.xpi auswählen.\n'
                 '3. In den Add-on-Einstellungen den Code einfügen und „Verbinden“ drücken.\n'
-                '4. Hier „Kalender aus Thunderbird laden“ anklicken und „twitch“ bei Terminen auswählen.\n\n'
+                '4. Hier „Kalender und Aufgabenlisten laden“ anklicken und den gewünschten Kalender bei Terminen auswählen.\n\n'
                 'Die XPI-Datei liegt neben der installierten EXE. Thunderbird geöffnet lassen.')
         except Exception as exc:
             messagebox.showerror('Kopplung', str(exc))
@@ -281,7 +281,7 @@ class App(tk.Tk):
     def setup_help(self):
         self.start_server_ui()
         messagebox.showinfo('Thunderbird einrichten',
-            'Bestehenden Kalender wie „twitch“ nutzen:\n'
+            'Bestehenden Thunderbird-Kalender nutzen:\n'
             '„Thunderbird-Add-on koppeln“ → Add-on installieren → Kalender laden → bei Terminen auswählen.\n'
             'Thunderbird übernimmt weiterhin dessen Server-/Handy-Synchronisation.\n\n'
             'Für Kontakte und alternativ lokale Termine/Aufgaben:\n\n'

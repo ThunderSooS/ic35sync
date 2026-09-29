@@ -75,7 +75,7 @@ class CalendarAdapterTests(unittest.TestCase):
         self.local = Mock(zone='Europe/Berlin')
         self.local.snapshot.return_value = {'/ic35/addressbook/a.vcf': remote('contacts'), '/ic35/calendar/local.ics': remote('events', 'Local'), '/ic35/calendar/task.ics': remote('tasks')}
         self.broker = Mock(pairing={'profile': 'test-profile'})
-        self.remote = remote('events', 'Twitch')
+        self.remote = remote('events', 'Testkalender')
         self.broker.call.return_value = {'complete': True, 'items': [{'uid': self.remote['uid'], 'content': self.remote['content'], 'etag': self.remote['etag']}]}
         self.adapter = Calendars(self.local, self.broker, {'events': 'selected-calendar', 'tasks': ''})
     def test_only_selected_calendar_replaces_local_events(self):
@@ -83,7 +83,7 @@ class CalendarAdapterTests(unittest.TestCase):
         self.assertEqual(len(snapshot), 3)
         self.assertNotIn('/ic35/calendar/local.ics', snapshot)
         self.assertIn('/ic35/calendar/task.ics', snapshot)
-        self.assertEqual(snapshot[self.adapter.href('events', self.remote['uid'])]['fields']['Betreff'], 'Twitch')
+        self.assertEqual(snapshot[self.adapter.href('events', self.remote['uid'])]['fields']['Betreff'], 'Testkalender')
     def test_incomplete_snapshot_stops(self):
         self.broker.call.return_value = {'complete': False, 'items': []}
         with self.assertRaises(RuntimeError): self.adapter.snapshot()
