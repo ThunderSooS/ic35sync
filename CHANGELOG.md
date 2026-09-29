@@ -1,30 +1,30 @@
-# 3.4.0b4 · IC35-Notizen abrufen / Fetch IC35 notes
+# 3.4.0b4 · IC35-Notizen beim Sync speichern / Save IC35 notes during sync
 
 ## Deutsch
 
 ### Neu
-- Neuer Button **Notizen abrufen**: liest alle IC35-Notizen (Memos) nur lesend aus und speichert sie als Textdateien.
-- Der Zielordner wird in der App über **Ordner wählen …** festgelegt und dauerhaft gespeichert.
+- Bei jeder Synchronisation werden alle IC35-Notizen (Memos) nur lesend mit ausgelesen und als Textdateien gespeichert.
+- Der Zielordner wird in der App unter **Notizen nach:** über **Ordner wählen …** festgelegt und dauerhaft gespeichert. Ohne Ordner werden Notizen übersprungen.
 - Eine Datei pro Notiz, benannt nach Betreff und IC35-ID, z. B. `Einkauf [IC35-000012].txt`.
 - Geänderte Notizen werden aktualisiert, bei geändertem Betreff wird die Datei umbenannt. Es werden keine Dateien gelöscht.
 - Das Protokoll wird rechts neben der Bedienung angezeigt (mit Scrollleiste, volle Fensterhöhe).
 
 ### Hinweis
-Die Notizdateien im gewählten Ordner sind unverschlüsselt. Am IC35 wird nichts verändert.
+Die Notizdateien im gewählten Ordner sind unverschlüsselt. An den Notizen auf dem IC35 wird nichts verändert. Ein Fehler beim Speichern der Notizen bricht den Sync nicht ab.
 
 ---
 
 ## English
 
 ### New
-- New **Notizen abrufen** (fetch notes) button: reads all IC35 notes (memos) read-only and saves them as text files.
-- The target folder is set in the app via **Ordner wählen …** (choose folder) and stored permanently.
+- Every sync also reads all IC35 notes (memos) read-only and saves them as text files.
+- The target folder is set in the app under **Notizen nach:** (notes to) via **Ordner wählen …** (choose folder) and stored permanently. Without a folder, notes are skipped.
 - One file per note, named after subject and IC35 ID, e.g. `Einkauf [IC35-000012].txt`.
 - Changed notes are updated; if the subject changes, the file is renamed. No files are deleted.
 - The log is shown to the right of the controls (with scrollbar, full window height).
 
 ### Note
-The note files in the selected folder are not encrypted. Nothing is changed on the IC35.
+The note files in the selected folder are not encrypted. Notes on the IC35 are not modified. An error while saving notes does not abort the sync.
 
 # 3.4.0b3 · Kalender automatisch laden
 

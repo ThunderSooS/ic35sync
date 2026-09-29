@@ -88,7 +88,6 @@ class App(tk.Tk):
         ttk.Label(memo_line, text='Notizen nach:', width=16).pack(side='left')
         ttk.Entry(memo_line, textvariable=self.memo_dir, state='readonly').pack(side='left', fill='x', expand=True)
         self.memo_pick_btn = ttk.Button(memo_line, text='Ordner wählen …', command=self.pick_memo_dir); self.memo_pick_btn.pack(side='left', padx=(6, 0))
-        self.memo_btn = ttk.Button(memo_line, text='Notizen abrufen', command=lambda: self.launch('memos')); self.memo_btn.pack(side='left', padx=(6, 0))
         self.canvas = tk.Canvas(left, width=84, height=84, highlightthickness=0)
         self.canvas.pack()
         self.arrows = [self.canvas.create_line(0, 0, 1, 1, width=5, fill=c, arrow=tk.LAST,
@@ -162,7 +161,7 @@ class App(tk.Tk):
                         self.after_cancel(self.prompt_timer)
                         self.prompt_timer = None
                     self.busy = False
-                    for widget in (self.sync_btn, self.backup_btn, self.memo_btn, self.memo_pick_btn, self.ports, self.zone_entry):
+                    for widget in (self.sync_btn, self.backup_btn, self.memo_pick_btn, self.ports, self.zone_entry):
                         widget.configure(state='normal')
                     for widget in self.calendar_boxes.values():
                         widget.configure(state='readonly')
@@ -328,29 +327,23 @@ class App(tk.Tk):
     def launch(self, backup):
         if self.busy:
             return
-        memos = backup == 'memos'
-        if memos and not self.memo_dir.get().strip():
-            self.pick_memo_dir()
-            if not self.memo_dir.get().strip():
-                return
-        if not memos and str(self.refresh_btn['state']) == 'disabled':
+        if str(self.refresh_btn['state']) == 'disabled':
             messagebox.showinfo('Kalender werden geladen', 'Bitte kurz warten, bis die Kalenderliste geladen ist.'); return
         port, zone = self.port.get().strip(), self.zone.get().strip()
         if not port:
             messagebox.showerror('Dock-Anschluss', 'Bitte COM-Anschluss auswählen.'); return
         try:
             ZoneInfo(zone)
-            if not memos:
-                self.start_server()
+            self.start_server()
             selections = {kind: self.calendar_ids[var.get()] for kind, var in self.calendar_vars.items()}
             if any(selections.values()) and not backup:
                 self.get_broker()
         except Exception as exc:
             messagebox.showerror('Vorbereitung', str(exc)); return
-        self.memo_target = Path(self.memo_dir.get())
+        self.memo_target = Path(self.memo_dir.get()) if self.memo_dir.get().strip() else None
         self.save_settings(port=port, zone=zone, calendars=selections, memo_dir=self.memo_dir.get())
         self.busy = True
-        for widget in (self.sync_btn, self.backup_btn, self.memo_btn, self.memo_pick_btn, self.ports, self.zone_entry):
+        for widget in (self.sync_btn, self.backup_btn, self.memo_pick_btn, self.ports, self.zone_entry):
             widget.configure(state='disabled')
         for widget in (*self.calendar_boxes.values(), self.pair_btn, self.refresh_btn):
             widget.configure(state='disabled')
@@ -415,17 +408,6 @@ class App(tk.Tk):
                 if auth is None or auth[:2] != b'\x01\x01':
                     raise RuntimeError('IC35-Anmeldung fehlgeschlagen')
                 proto.read_sync_info(ser)
-                if backup == 'memos':
-                    folder = self.memo_target
-                    self.emit('stage', '3/3 · Notizen werden gespeichert …')
-                    records = memo_export.read_memos(ser, log)
-                    proto.disconnect(ser)
-                    stats = memo_export.write_memos(records, folder, log)
-                    log('Vorgang erfolgreich abgeschlossen.')
-                    self.emit('done', f'IC35-Notizen gespeichert in:\n{folder}\n\n'
-                                      f'Neu: {stats["created"]} · Aktualisiert: {stats["updated"]} · '
-                                      f'Umbenannt: {stats["renamed"]} · Unverändert: {stats["unchanged"]}')
-                    return
                 proto.DATABASES = list(dav_sync.model.DB.values())
                 proto.EXPORTFILE = ROOT / 'exports' / f'{stamp}.json.dpapi'
                 proto.EXPORTFILE.parent.mkdir(parents=True, exist_ok=True)
@@ -433,12 +415,14 @@ class App(tk.Tk):
                 self.emit('stage', '3/3 · Kontakte, Kalender und Aufgaben abgleichen …')
                 result = dav_sync.Sync(state_root, identity, dav, dav_sync.Device(ser), log).run(export)
                 private_storage.write_json(ROOT / 'reports' / f'{stamp}.dpapi', result)
+                memo_summary = self.fetch_memos(ser, log)
                 proto.disconnect(ser)
                 stats = result['stats']
                 message = (f'IC35 angelegt/aktualisiert: {stats["write_device"]}\n'
                            f'Thunderbird angelegt/aktualisiert: {stats["write_remote"]}\n'
                            f'Gelöscht auf IC35/Thunderbird: {stats["delete_device"]}/{stats["delete_remote"]}\n'
-                           f'Übersprungen: {len(result["skipped"])} (siehe Protokoll)\n\n'
+                           f'Übersprungen: {len(result["skipped"])} (siehe Protokoll)\n'
+                           f'{memo_summary}\n\n'
                            'Jetzt in Thunderbird synchronisieren, um die Änderungen abzurufen.')
             log('Vorgang erfolgreich abgeschlossen.')
             self.emit('done', message)
@@ -453,6 +437,23 @@ class App(tk.Tk):
                 ser.close()
             if lock is not None:
                 lock.close()
+
+    def fetch_memos(self, ser, log):
+        """Read IC35 memos read-only and store them as text files; never aborts the sync."""
+        folder = self.memo_target
+        if folder is None:
+            log('Notizen: kein Notizordner festgelegt, Notizen werden übersprungen.')
+            return 'Notizen: kein Ordner festgelegt'
+        self.emit('stage', '3/3 · IC35-Notizen werden gespeichert …')
+        try:
+            stats = memo_export.write_memos(memo_export.read_memos(ser, log), folder, log)
+        except Exception as exc:
+            log(f'WARNUNG Notizen: {exc}')
+            return 'Notizen: Fehler (siehe Protokoll)'
+        log(f'Notizen gespeichert in {folder}: neu {stats["created"]}, aktualisiert {stats["updated"]}, '
+            f'umbenannt {stats["renamed"]}, unverändert {stats["unchanged"]}.')
+        return (f'Notizen neu/aktualisiert/umbenannt: '
+                f'{stats["created"]}/{stats["updated"]}/{stats["renamed"]}')
 
     def stop_server(self):
         if self.server is not None and self.server.poll() is None:

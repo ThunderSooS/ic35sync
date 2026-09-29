@@ -40,7 +40,7 @@ The regular workflow uses one dock connection, without a confirmation dialog or 
 - Tasks: title, note, start/due dates without time, open/completed and high/normal/low priority.
 - Creation, editing and deletion propagate both ways after the first successful association.
 
-Unsupported items are skipped with a reason in the log: recurring/all-day events, exceptions, invitations, task times/reminders/intermediate progress, complex contacts with additional names/addresses or duplicate phone slots, and text exceeding IC35 field sizes or Windows-1252. Photos and other Thunderbird-only properties are not copied to the IC35; properties without a device equivalent are retained when updating an existing resource. Categories are not synchronized bidirectionally. IC35 memos are not synchronized, but “Notizen abrufen” (fetch notes) exports them read-only as text files into a folder of your choice (one file per note, named after subject and IC35 ID; existing files are updated, nothing is deleted).
+Unsupported items are skipped with a reason in the log: recurring/all-day events, exceptions, invitations, task times/reminders/intermediate progress, complex contacts with additional names/addresses or duplicate phone slots, and text exceeding IC35 field sizes or Windows-1252. Photos and other Thunderbird-only properties are not copied to the IC35; properties without a device equivalent are retained when updating an existing resource. Categories are not synchronized bidirectionally. IC35 memos are not synchronized, but every sync exports them read-only as text files into the folder chosen under “Notizen nach:” (notes to) (one file per note, named after subject and IC35 ID; existing files are updated, nothing is deleted).
 
 ## Safety and storage
 
