@@ -64,7 +64,7 @@ Ein normaler Abgleich benötigt eine Dock-Verbindung und startet ohne zusätzlic
 
 Kalenderzeiten werden in die eingestellte IC35-Zeitzone umgerechnet. Das Gerät kennt selbst keine Zeitzonen; neue Gerätetermine werden als lokale Uhrzeiten bereitgestellt. Thunderbird entsprechend auf dieselbe Zeitzone einstellen.
 
-Diese Alpha überspringt nicht sicher darstellbare Einträge und nennt den Grund im Protokoll: Terminserien und Ausnahmen, ganztägige Termine, Einladungen, Aufgaben mit Uhrzeit/Erinnerungen/Zwischenstatus sowie zu lange Texte oder Zeichen außerhalb Windows-1252. Komplexe Kontakte mit mehreren Anschriften, zusätzlichen Namensbestandteilen oder mehreren Nummern desselben Typs werden ebenfalls übersprungen. Fotos und zusätzliche Thunderbird-Felder werden nicht auf den IC35 übertragen; bei Änderungen einer vorhandenen Ressource bleiben nicht abgebildete Eigenschaften erhalten. Kategorien werden nicht bidirektional abgeglichen. IC35-Notizen (Memos) werden nicht abgeglichen, werden aber bei jeder Synchronisation nur lesend als Textdateien in den unter „Notizen nach:“ gewählten Ordner gespeichert (eine Datei pro Notiz, benannt nach Betreff und IC35-ID; vorhandene Dateien werden aktualisiert, nichts wird gelöscht).
+Diese Beta überspringt nicht sicher darstellbare Einträge und nennt den Grund im Protokoll: Terminserien und Ausnahmen, ganztägige Termine, Einladungen, Aufgaben mit Uhrzeit/Erinnerungen/Zwischenstatus sowie zu lange Texte oder Zeichen außerhalb Windows-1252. Komplexe Kontakte mit mehreren Anschriften, zusätzlichen Namensbestandteilen oder mehreren Nummern desselben Typs werden ebenfalls übersprungen. Fotos und zusätzliche Thunderbird-Felder werden nicht auf den IC35 übertragen; bei Änderungen einer vorhandenen Ressource bleiben nicht abgebildete Eigenschaften erhalten. Kategorien werden nicht bidirektional abgeglichen. IC35-Notizen (Memos) werden nicht abgeglichen, werden aber bei jeder Synchronisation nur lesend als Textdateien in den unter „Notizen nach:“ gewählten Ordner gespeichert (eine Datei pro Notiz, benannt nach Betreff und IC35-ID; vorhandene Dateien werden aktualisiert, nichts wird gelöscht).
 
 ## Konflikte, Sicherungen und Fehler
 
@@ -77,11 +77,11 @@ Diese Alpha überspringt nicht sicher darstellbare Einträge und nennt den Grund
 
 Datenordner: `%APPDATA%\IC35ThunderbirdAlpha`. Darin liegen `radicale` (lokale Sammlungen), `thunderbird_state.dpapi`, gegebenenfalls `pending.dpapi`, `backups`, `exports`, `logs` und `reports`. Add-on-Zuordnungen und deren Sicherungen liegen getrennt pro Kalenderauswahl unter `sync_states`; der Kopplungscode liegt geschützt in `addon_pairing.dpapi`. Ein unvollständiger Abgleich mit einer anderen Auswahl muss zuerst abgeschlossen werden. Die lokalen DAV-Dateien und Thunderbird-Caches sind nicht durch die App verschlüsselt. Keine automatische Aufräumfrist. Der Button **Datenordner** öffnet den Ordner.
 
-Die bisherigen Datenordner, Zugangsdaten und Zuordnungen älterer Ausgaben werden nicht migriert oder gelöscht. Diese Alpha verwendet einen eigenen Installer, Datenordner und Port. Pro Datenordner nur **einen IC35** verwenden; die Gerätekennung ist keine garantierte individuelle Seriennummer. Nach Zurücksetzen/Austausch des Geräts den bisherigen State nicht weiterverwenden, sondern eine getrennte Neueinrichtung mit gesicherten Daten planen. Eine Deinstallation lässt persönliche Daten bestehen.
+Die bisherigen Datenordner, Zugangsdaten und Zuordnungen älterer Ausgaben werden nicht migriert oder gelöscht. Diese Ausgabe verwendet einen eigenen Installer, Datenordner und Port (der Ordnername `IC35ThunderbirdAlpha` bleibt aus Kompatibilitätsgründen bestehen). Pro Datenordner nur **einen IC35** verwenden; die Gerätekennung ist keine garantierte individuelle Seriennummer. Nach Zurücksetzen/Austausch des Geräts den bisherigen State nicht weiterverwenden, sondern eine getrennte Neueinrichtung mit gesicherten Daten planen. Eine Deinstallation lässt persönliche Daten bestehen.
 
 ## Entwicklungsstand und Test
 
-67 automatisierte Tests prüfen Zuordnung, Änderungen/Löschungen, Konflikte, Wiederaufnahme, Kopplungsschutz, Kalenderauswahl und die Notizablage. Ein isoliertes Thunderbird-153.0.1-Profil prüft das echte Add-on mit lokalen und zwischengespeicherten CalDAV-Kalendern, inklusive Änderungen auf beiden Seiten, Versionskonflikten und Serverausfall. Die Windows-EXE wird separat auf Startfähigkeit, Tk-Oberfläche und DPAPI geprüft. Dein Google-Kalender wurde für diese Tests nicht verwendet.
+67 automatisierte Tests prüfen Zuordnung, Änderungen/Löschungen, Konflikte, Wiederaufnahme, Kopplungsschutz, Kalenderauswahl und die Notizablage. Ein isoliertes Thunderbird-153.0.1-Profil prüft das echte Add-on mit lokalen und zwischengespeicherten CalDAV-Kalendern, inklusive Änderungen auf beiden Seiten, Versionskonflikten und Serverausfall. Die Windows-EXE wird separat auf Startfähigkeit, Tk-Oberfläche und DPAPI geprüft. Für diese Tests wurde kein persönlicher Google-Kalender verwendet.
 
 **Der neue Thunderbird-Gesamtabgleich ist noch nicht an echter IC35-Hardware bestätigt.** Der serielle Transport stammt aus der bisherigen Ausgabe. Vor produktiver Nutzung mit einem Testkontakt, einem Einzeltermin und einer Aufgabe jeweils beide Richtungen und Löschungen prüfen. Vor dem ersten Hardwaretest ein manuelles Vollbackup erstellen.
 
@@ -99,17 +99,17 @@ py -3.12 -m venv .venv
 
 Der Build erstellt auch die XPI aus `addon/`. Anschließend `installer.iss` mit Inno Setup 6 kompilieren. `scripts/package_source.py` erstellt ein Quellarchiv aus einer festen Dateiliste und prüft dessen ZIP-Integrität. `scripts/smoke_windows.py` prüft die gebaute EXE einschließlich ihres eingebetteten DAV-Dienstes ohne Gerätezugriff. `scripts/test_thunderbird.py` nutzt eine separate, künstliche Thunderbird-Testumgebung. Es werden keine persönlichen Daten, Schlüssel oder State-Dateien verpackt.
 
-Für GitHub den Quellcode als vollständigen neuen Stand verwenden, nicht einfach über alle alten Dateien kopieren: alte Cloud-Module und frühere Build-Konfigurationen gehören nicht in diese Ausgabe. Installer unter Releases bereitstellen. GPL-2.0; Herkunft und weitere Lizenzen siehe `THIRD_PARTY_NOTICES.md`.
+Setup und Add-on stehen unter [Releases](https://github.com/ThunderSooS/ic35sync/releases) bereit. GPL-2.0; Herkunft und weitere Lizenzen siehe `THIRD_PARTY_NOTICES.md`.
 
-## Serien und Wiederaufnahme ab a4
+## Serien und Wiederaufnahme
 
-Passende Einzeltermine auf dem IC35 werden bei vorhandener Thunderbird-Serie übersprungen, auch bei abweichender Erinnerung. Die Serie wird nicht bearbeitet. Eine im unterbrochenen CREATE nachweislich erzeugte Einzelkopie wird nach verschlüsselter Sicherung und erneuter Prüfung entfernt. Fremde oder nachträglich inhaltlich bearbeitete Duplikate werden nicht automatisch gelöscht. State und pending.dpapi nicht entfernen; unverändert denselben Kalender auswählen. Add-on a2 muss nicht neu installiert werden.
+Passende Einzeltermine auf dem IC35 werden bei vorhandener Thunderbird-Serie übersprungen, auch bei abweichender Erinnerung. Die Serie wird nicht bearbeitet. Eine im unterbrochenen CREATE nachweislich erzeugte Einzelkopie wird nach verschlüsselter Sicherung und erneuter Prüfung entfernt. Fremde oder nachträglich inhaltlich bearbeitete Duplikate werden nicht automatisch gelöscht. State und pending.dpapi nicht entfernen; unverändert denselben Kalender auswählen. Ein Neuinstallieren des Add-ons ist dafür nicht nötig.
 
 ## Google Tasks über Thunderbird
 
-Installer 3.4.0b1 und das neue IC35-Add-on `IC35-Thunderbird-Bridge-3.4.0b1.xpi` installieren und Thunderbird neu starten. Das Add-on hat intern die Version 3.4.0.12. Eine vorhandene Kopplung bleibt erhalten.
+Ab Version 3.4.0b1 werden Google-Tasks-Listen unterstützt. Dafür muss das Add-on `IC35-Thunderbird-Bridge-3.4.0b1.xpi` installiert sein; danach Thunderbird neu starten. Das Add-on hat intern die Version 3.4.0.12. Eine vorhandene Kopplung bleibt erhalten.
 
-Die Aufgabenliste muss bereits über „Provider for Google Calendar“ in Thunderbird eingerichtet sein. In der Sync-App **Kalender und Aufgabenlisten laden** drücken und bei **Aufgaben aus** die gewünschte Liste auswählen, beispielsweise **ThunderClub · Thunderbird**. Anschließend normal synchronisieren.
+Die Aufgabenliste muss bereits über „Provider for Google Calendar“ in Thunderbird eingerichtet sein. In der Sync-App **Kalender und Aufgabenlisten laden** drücken und bei **Aufgaben aus** die gewünschte Liste auswählen, beispielsweise **Meine Aufgaben · Thunderbird**. Anschließend normal synchronisieren.
 
 Unterstützt werden Titel, Notizen, Fälligkeitsdatum und Erledigt-Status sowie Anlegen, Bearbeiten und Löschen in beide Richtungen. Google vergibt neue Aufgaben-IDs; das IC35-Add-on speichert deren Zuordnung im Thunderbird-Profil. Dieses Profil und die Sync-State-Dateien aufbewahren. Eine Neuanlage ohne bestätigte ID sperrt den Abgleich statt die Aufgabe erneut anzulegen; in diesem Fall das Log zur Prüfung bereitstellen und keine State-Dateien löschen.
 

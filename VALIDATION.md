@@ -46,10 +46,10 @@ Four additional tests reproduce the supplied hardware log's event-field defaults
 ## Not yet verified
 
 - Real Siemens IC35 read/write/delete using this new combined Thunderbird edition.
-- Interactive add-on installation/pairing in the user's existing Thunderbird profile and end-to-end edits in the actual Google “twitch” calendar. No personal Google calendar was accessed during these tests.
+- Interactive add-on installation/pairing in the user's existing Thunderbird profile and end-to-end edits in the actual personal Google calendar. No personal Google calendar was accessed during these tests.
 - Listening to the audio prompts on the user's output device; checks verify file inclusion, not audibility.
 
-The reconciliation tests use a simulated IC35 adapter. The actual serial transport is carried over from the previous edition. These tests do not establish hardware compatibility on every dock/firmware version. This release remains an alpha.
+The reconciliation tests use a simulated IC35 adapter. The actual serial transport is carried over from the previous edition. These tests do not establish hardware compatibility on every dock/firmware version. This release remains a beta.
 
 ## Suggested hardware acceptance test
 

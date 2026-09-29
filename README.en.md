@@ -52,9 +52,9 @@ The app saves an encrypted record snapshot before reconciliation. This is not a 
 
 Data directory: `%APPDATA%\IC35ThunderbirdAlpha`. State, journals, exports, operation snapshots and application logs use current-user Windows DPAPI. Add-on state/snapshots are separated by calendar selection under `sync_states`; `addon_pairing.dpapi` stores the protected pairing code. An interrupted operation must be resolved using its previous calendar selection before changing targets. The DAV collection files and Thunderbird caches remain ordinary local files. Files are retained until manually removed. DPAPI files depend on the originating Windows account.
 
-Previous versions' data/settings are neither migrated nor removed. The new edition has its own installer, directory and port. Use only one IC35 per data directory: the model identifier is not a guaranteed unique serial number. After resetting or replacing the device, plan a separate initialization with backed-up data instead of reusing the previous state. Uninstalling keeps personal data.
+Previous versions' data/settings are neither migrated nor removed. This edition has its own installer, directory and port (the folder name `IC35ThunderbirdAlpha` is kept for compatibility). Use only one IC35 per data directory: the model identifier is not a guaranteed unique serial number. After resetting or replacing the device, plan a separate initialization with backed-up data instead of reusing the previous state. Uninstalling keeps personal data.
 
-## Alpha verification and source build
+## Verification and source build
 
 67 automated tests cover mappings, two-way changes/deletions, conflicts, recovery, pairing security, calendar selection and note export. A real isolated Thunderbird 153.0.1 profile tests add-on creation/updates/deletion with local and cached CalDAV calendars, changes from both sides and unavailable-server rejection. No personal Google calendar is used in these tests. Windows executable checks cover the UI, DPAPI and bundled DAV service.
 
@@ -72,15 +72,15 @@ py -3.12 -m venv .venv
 
 The build also packages the XPI from `addon/`. Compile `installer.iss` with Inno Setup 6. `scripts/package_source.py` creates and validates the source ZIP using an explicit allowlist. `scripts/smoke_windows.py` checks the executable and embedded DAV service without accessing a device. `scripts/test_thunderbird.py` uses a separate synthetic Thunderbird profile. `build-requirements.txt` records the concrete build versions. No personal data or credentials are packaged.
 
-Use this source as a complete new repository revision, removing the previous cloud modules and build configuration instead of overlaying files. Publish the installer as a release asset. GPL-2.0; see `THIRD_PARTY_NOTICES.md` for provenance and bundled license notices.
+The setup and add-on are available under [Releases](https://github.com/ThunderSooS/ic35sync/releases). GPL-2.0; see `THIRD_PARTY_NOTICES.md` for provenance and bundled license notices.
 
-## Recurring events and interrupted writes (a4)
+## Recurring events and interrupted writes
 
-IC35 events matching an existing Thunderbird recurrence are skipped even if reminders differ. Series are not modified. An interrupted CREATE may roll back only its journal-identified duplicate after an encrypted backup and fresh checks. Unrelated or subsequently edited duplicates are not deleted automatically. Keep all state and pending files and select the same calendar. The a2 add-on remains compatible.
+IC35 events matching an existing Thunderbird recurrence are skipped even if reminders differ. Series are not modified. An interrupted CREATE may roll back only its journal-identified duplicate after an encrypted backup and fresh checks. Unrelated or subsequently edited duplicates are not deleted automatically. Keep all state and pending files and select the same calendar. The add-on does not need to be reinstalled for this.
 
 ## Google Tasks through Thunderbird
 
-Install setup 3.4.0b1 and `IC35-Thunderbird-Bridge-3.4.0b1.xpi` (internal add-on version 3.4.0.12), then restart Thunderbird. Existing pairing is retained. Configure your Google Tasks list in Thunderbird using Provider for Google Calendar. Click **Kalender und Aufgabenlisten laden** and select the list under **Aufgaben aus**.
+Google Tasks lists are supported since 3.4.0b1. This requires the add-on `IC35-Thunderbird-Bridge-3.4.0b1.xpi` (internal add-on version 3.4.0.12); restart Thunderbird after installing it. Existing pairing is retained. Configure your Google Tasks list in Thunderbird using Provider for Google Calendar. Click **Kalender und Aufgabenlisten laden** and select the list under **Aufgaben aus**.
 
 Supports title, notes, due date, completion, creation, editing and deletion in both directions. Server-assigned IDs are mapped persistently in the Thunderbird profile. Keep this profile and the app’s sync state. An uncertain creation blocks synchronization rather than retrying; provide the log for investigation instead of deleting state files.
 
