@@ -1,6 +1,6 @@
-# IC35 Sync Beta · 3.4.0b5
+# IC35 Sync Beta · 3.4.0b6
 
-**IC35 Sync Beta for 64-bit Windows 10/11.** Two-way synchronization of contacts, individual calendar events and tasks with a Siemens IC35; IC35 notes are saved as text files in a folder of your choice during each sync. The sync app needs no cloud login or credential JSON files. The bundled add-on connects existing Thunderbird calendars, including Google CalDAV and other network calendars. Thunderbird continues handling the account connection. The application interface is currently German.
+**IC35 Sync Beta for 64-bit Windows 10/11.** Two-way synchronization of contacts, individual calendar events and tasks with a Siemens IC35; IC35 notes are synchronized both ways with text files in a folder of your choice. The sync app needs no cloud login or credential JSON files. The bundled add-on connects existing Thunderbird calendars, including Google CalDAV and other network calendars. Thunderbird continues handling the account connection. The application interface is currently German.
 
 [Deutsch](README.md) · [Privacy](PRIVACY.md) · [Changes](CHANGELOG.md) · [License](LICENSE)
 
@@ -19,18 +19,18 @@ Keep both applications open. Network calendars must be online; errors or pending
 
 ## Setup
 
-1. Run `IC35-Sync-Beta-3.4.0b5-Setup.exe`. Python is bundled; installation is per user without administrator rights.
+1. Run `IC35-Sync-Beta-3.4.0b6-Setup.exe`. Python is bundled; installation is per user without administrator rights.
 2. Open **IC35 Sync Beta**, select the dock's COM port and check the IC35 time zone (default `Europe/Berlin`).
 3. Install the bundled `IC35-Thunderbird-Bridge-3.4.0b5.xpi` add-on in Thunderbird and restart Thunderbird.
 4. In the app, click **Thunderbird-Add-on koppeln**, paste the pairing code into the add-on settings and click **Verbinden**.
 5. Calendars and task lists load automatically after pairing (manually via **Kalender und Aufgabenlisten laden**). Select the existing calendar and task collection shown with **· Thunderbird**.
-6. Optionally choose a folder for IC35 notes under **Notizen nach:** (notes to) using **Ordner wählen …** (choose folder).
+6. Optionally choose a folder for IC35 notes under **Notizordner:** (notes folder) using **Ordner wählen …** (choose folder).
 
 The add-on method uses the calendars and task collections already configured in Thunderbird. Thunderbird continues to handle account login and server synchronization; the IC35 app does not need Google credentials or JSON files.
 
 ## Daily use
 
-Synchronize the address book/calendar in Thunderbird, then click **Alles mit Thunderbird synchronisieren** in this app. Press the dock button when prompted. The UI and a sound confirm the connection. Wait for completion; at the end, IC35 notes are saved to the chosen folder. Then synchronize Thunderbird again to receive the changes. The log to the right of the controls shows every step, and the completion message summarizes all changes including notes. Avoid editing either side during the operation.
+Synchronize the address book/calendar in Thunderbird, then click **Alles mit Thunderbird synchronisieren** in this app. Press the dock button when prompted. The UI and a sound confirm the connection. Wait for completion; at the end, IC35 notes are synchronized with the chosen folder. Then synchronize Thunderbird again to receive the changes. The log to the right of the controls shows every step, and the completion message summarizes all changes including notes. Avoid editing either side during the operation.
 
 The regular workflow uses one dock connection, without a confirmation dialog or an automatic full-device backup. The supplied start and dock voice prompts and connection/completion sounds are retained.
 
@@ -40,9 +40,9 @@ The regular workflow uses one dock connection, without a confirmation dialog or 
 - Calendar: individual timed events, title, note, start/end and one supported display reminder. Zoned events are converted to the configured device time zone; device events use local floating times. Set Thunderbird to the same time zone.
 - Tasks: title, note, start/due dates without time, open/completed and high/normal/low priority.
 - Creation, editing and deletion propagate both ways after the first successful association.
-- Notes: IC35 → folder only, one text file per note (subject and content); nothing is written back to the IC35.
+- Notes: subject (file name) and text as a text file; creation, editing, renaming and deletion both ways.
 
-Unsupported items are skipped with a reason in the log: recurring/all-day events, exceptions, invitations, task times/reminders/intermediate progress, complex contacts with additional names/addresses or duplicate phone slots, and text exceeding IC35 field sizes or Windows-1252. Photos and other Thunderbird-only properties are not copied to the IC35; properties without a device equivalent are retained when updating an existing resource. Categories are not synchronized bidirectionally. IC35 memos are not synchronized, but every sync exports them read-only as text files into the folder chosen under “Notizen nach:” (notes to) (one file per note, named after subject and IC35 ID; existing files are updated, nothing is deleted).
+Unsupported items are skipped with a reason in the log: recurring/all-day events, exceptions, invitations, task times/reminders/intermediate progress, complex contacts with additional names/addresses or duplicate phone slots, and text exceeding IC35 field sizes or Windows-1252. Photos and other Thunderbird-only properties are not copied to the IC35; properties without a device equivalent are retained when updating an existing resource. Categories are not synchronized bidirectionally. Note categories are not synchronized; notes that are too long or use characters outside Windows-1252 are skipped (see below).
 
 ## Safety and storage
 
@@ -56,7 +56,7 @@ Previous versions' data/settings are neither migrated nor removed. This edition 
 
 ## Verification and source build
 
-67 automated tests cover mappings, two-way changes/deletions, conflicts, recovery, pairing security, calendar selection and note export. A real isolated Thunderbird 153.0.1 profile tests add-on creation/updates/deletion with local and cached CalDAV calendars, changes from both sides and unavailable-server rejection. No personal Google calendar is used in these tests. Windows executable checks cover the UI, DPAPI and bundled DAV service.
+82 automated tests cover mappings, two-way changes/deletions, conflicts, recovery, pairing security, calendar selection and note sync. A real isolated Thunderbird 153.0.1 profile tests add-on creation/updates/deletion with local and cached CalDAV calendars, changes from both sides and unavailable-server rejection. No personal Google calendar is used in these tests. Windows executable checks cover the UI, DPAPI and bundled DAV service.
 
 **The new combined Thunderbird workflow has not yet been verified on real IC35 hardware.** Its serial transport comes from the previous edition. Make a manual full backup before the first hardware test, then test a contact, individual event and task in both directions, including deletion.
 
@@ -90,13 +90,16 @@ Tests use a simulated Google provider inside real isolated Thunderbird. An actua
 
 The app automatically starts Thunderbird if it is not already running. If its installation cannot be found, open Thunderbird manually. Closing the sync app leaves Thunderbird running.
 
-## IC35 notes (since 3.4.0b4)
+## IC35 notes
 
-Choose a target folder under **Notizen nach:** (notes to) with **Ordner wählen …** (choose folder); the choice is remembered. Every regular sync then reads all IC35 notes read-only and stores them there:
+Choose a folder under **Notizordner:** (notes folder) with **Ordner wählen …** (choose folder); the choice is remembered. Every regular sync then synchronizes the IC35 notes with the text files (`.txt`) in this folder in both directions:
 
-- one file per note, named after subject and IC35 ID, e.g. `Einkauf [IC35-000012].txt` (UTF-8, Windows line endings),
-- changed notes are overwritten; if the subject changes, the file is renamed,
-- no files are deleted, not even when a note was removed on the IC35; your own files in the folder are left alone,
-- edits to the text files are not transferred to the IC35.
+- **One file per note**, named after subject and IC35 ID, e.g. `Einkauf [IC35-000012].txt`. The file name without the suffix is the subject, the file content is the note text.
+- **New note on the PC:** create a `.txt` file without the “[IC35-…]” suffix, e.g. `Telefon.txt`. It is transferred to the IC35 and then renamed to `Telefon [IC35-000013].txt`. Do not keep other text files in the notes folder.
+- **Editing and renaming:** changed text or a changed file name (= subject) is transferred; changes on the IC35 are written to the file. Do not change the “[IC35-…]” suffix.
+- **Deleting:** deleting a file deletes the note on the IC35 and vice versa.
+- **Conflicts:** if a note was changed differently on both sides, or deleted on one side and changed on the other, nothing is written for this note. The log names the note and what to do.
+- **IC35 limits:** subject up to 60 characters, text up to 255 bytes (each line break counts twice), only Windows-1252 characters (no emojis). Nothing is truncated; such notes are skipped with a reason in the log. Characters not allowed in file names (e.g. `:` or `?`) appear as `_` in the file name; the subject on the IC35 is kept unchanged.
+- **Safety:** every write is read back from the IC35. A protected backup of all notes is saved under `exports` before syncing. If the folder is missing, all known note files are missing, or the IC35 suddenly reports no notes, the note sync stops and nothing is deleted. An interrupted creation is detected on the next run instead of being created twice.
 
-Without a folder, notes are skipped. An error while saving notes is reported in the log and does not abort the sync. **Nur Vollbackup** (full backup only) does not write note files. Note files are not encrypted (see [Privacy](PRIVACY.md)).
+On the first sync with a folder, identical files and notes are linked and missing files are created; differing versions are reported as conflicts. Without a folder, notes are skipped. An error in the note sync does not abort the rest of the sync. **Nur Vollbackup** (full backup only) does not synchronize notes. Note files are not encrypted (see [Privacy](PRIVACY.md)).

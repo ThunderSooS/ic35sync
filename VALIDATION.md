@@ -1,3 +1,15 @@
+# Verification · 3.4.0b6
+
+## Deutsch
+- 82 automatisierte Tests, davon 17 für den Notizabgleich: Erstabgleich, Wiederholung ohne Änderungen, Bearbeiten und Umbenennen auf beiden Seiten, Löschen in beide Richtungen, Neuanlage am PC, Konflikte, gleiche Änderung auf beiden Seiten, keine Kürzung, CRLF-Längenprüfung, Sicherheitsstopps (Ordner fehlt, alle Dateien fehlen, IC35 leer), Wiederaufnahme einer unterbrochenen Neuanlage, Verknüpfung vorhandener Dateien und das Schreibformat an den IC35 (Befehle 01 08/01 09/01 02, Memo-Magic 60 16 99 laut ic35link 1.18, Blöcke zu 80 Byte).
+- Unter Wine gebaut; dort schlägt der Radicale-Integrationstest wegen des Wine-Dateisystems fehl, `smoke_windows.py` und die Installer-Prüfung liefen nicht.
+- **Noch nicht an echter IC35-Hardware geprüft:** Schreiben, Ändern und Löschen von Notizen. Vor dem ersten Test ein Vollbackup erstellen und mit einer Testnotiz beginnen.
+
+## English
+- 82 automated tests, 17 of them for note sync: initial sync, repeat without changes, editing and renaming on both sides, deletion both ways, creation on the PC, conflicts, identical change on both sides, no truncation, CRLF length check, safety stops (folder missing, all files missing, IC35 empty), resuming an interrupted creation, linking existing files and the IC35 write format (commands 01 08/01 09/01 02, memo magic 60 16 99 per ic35link 1.18, 80-byte blocks).
+- Built under Wine; there the Radicale integration test fails due to the Wine file system, `smoke_windows.py` and the installer check were not run.
+- **Not yet verified on real IC35 hardware:** writing, updating and deleting notes. Make a full backup before the first test and start with a test note.
+
 # Verification · 3.4.0b5
 
 ## Deutsch

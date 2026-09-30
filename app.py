@@ -20,13 +20,13 @@ import bridge
 import dav_sync
 import ic35_protocol as proto
 import manager_protocol as manager
-import memo_export
+import memo_sync
 import private_storage
 import sync_sounds
 import thunderbird_rpc
 import thunderbird_calendar
 
-VERSION = '3.4.0b5'
+VERSION = '3.4.0b6'
 ROOT = Path(os.environ.get('IC35_TB_DATA_DIR') or Path(os.environ.get('APPDATA', Path.home())) / 'IC35ThunderbirdAlpha')
 PORT = 5233
 BASE = f'http://127.0.0.1:{PORT}'
@@ -61,7 +61,7 @@ class App(tk.Tk):
         left = ttk.Frame(self, padding=(8, 0)); left.pack(side='left', fill='y')
         right = ttk.LabelFrame(self, text='Protokoll', padding=6); right.pack(side='left', fill='both', expand=True, padx=(0, 12), pady=12)
         ttk.Label(left, text='Siemens IC35 ↔ Thunderbird', font=('Segoe UI', 21)).pack(pady=(16, 5))
-        ttk.Label(left, text='Kontakte · Kalender · Aufgaben — lokal auf deinem PC').pack()
+        ttk.Label(left, text='Kontakte · Kalender · Aufgaben · Notizen — lokal auf deinem PC').pack()
         row = ttk.Frame(left, padding=12); row.pack()
         ttk.Label(row, text='Dock-Anschluss:').pack(side='left')
         self.ports = ttk.Combobox(row, textvariable=self.port, width=12, values=[x.device for x in list_ports.comports()])
@@ -85,7 +85,7 @@ class App(tk.Tk):
         self.pair_btn = ttk.Button(actions, text='Thunderbird-Add-on koppeln', command=self.pair_addon); self.pair_btn.pack(side='left', padx=4)
         self.refresh_btn = ttk.Button(actions, text='Kalender und Aufgabenlisten laden', command=self.load_calendars); self.refresh_btn.pack(side='left', padx=4)
         memo_line = ttk.Frame(choices); memo_line.pack(fill='x', pady=3)
-        ttk.Label(memo_line, text='Notizen nach:', width=16).pack(side='left')
+        ttk.Label(memo_line, text='Notizordner:', width=16).pack(side='left')
         ttk.Entry(memo_line, textvariable=self.memo_dir, state='readonly').pack(side='left', fill='x', expand=True)
         self.memo_pick_btn = ttk.Button(memo_line, text='Ordner wählen …', command=self.pick_memo_dir); self.memo_pick_btn.pack(side='left', padx=(6, 0))
         self.canvas = tk.Canvas(left, width=84, height=84, highlightthickness=0)
@@ -415,7 +415,7 @@ class App(tk.Tk):
                 self.emit('stage', '3/3 · Kontakte, Kalender und Aufgaben abgleichen …')
                 result = dav_sync.Sync(state_root, identity, dav, dav_sync.Device(ser), log).run(export)
                 private_storage.write_json(ROOT / 'reports' / f'{stamp}.dpapi', result)
-                memo_summary = self.fetch_memos(ser, log)
+                memo_summary = self.sync_memos(ser, log, stamp)
                 proto.disconnect(ser)
                 stats = result['stats']
                 message = (f'IC35 angelegt/aktualisiert: {stats["write_device"]}\n'
@@ -438,22 +438,28 @@ class App(tk.Tk):
             if lock is not None:
                 lock.close()
 
-    def fetch_memos(self, ser, log):
-        """Read IC35 memos read-only and store them as text files; never aborts the sync."""
+    def sync_memos(self, ser, log, stamp):
+        """Two-way memo sync with the chosen folder; never aborts the main sync."""
         folder = self.memo_target
         if folder is None:
             log('Notizen: kein Notizordner festgelegt, Notizen werden übersprungen.')
             return 'Notizen: kein Ordner festgelegt'
-        self.emit('stage', '3/3 · IC35-Notizen werden gespeichert …')
+        self.emit('stage', '3/3 · IC35-Notizen abgleichen …')
+        state_path = ROOT / 'memo_state.dpapi'
+        load = lambda: private_storage.read_json(state_path) if state_path.exists() else None
+        save = lambda state: private_storage.write_json(state_path, state)
+        backup = lambda memos: private_storage.write_json(ROOT / 'exports' / f'{stamp}_memos.json.dpapi', memos)
         try:
-            stats = memo_export.write_memos(memo_export.read_memos(ser, log), folder, log)
+            stats = memo_sync.MemoSync(folder, memo_sync.Device(ser, log), load, save, log, backup).run()
+        except memo_sync.Stop as exc:
+            log(f'WARNUNG Notizen: {exc}')
+            return 'Notizen: angehalten (siehe Protokoll)'
         except Exception as exc:
             log(f'WARNUNG Notizen: {exc}')
             return 'Notizen: Fehler (siehe Protokoll)'
-        log(f'Notizen gespeichert in {folder}: neu {stats["created"]}, aktualisiert {stats["updated"]}, '
-            f'umbenannt {stats["renamed"]}, unverändert {stats["unchanged"]}.')
-        return (f'Notizen neu/aktualisiert/umbenannt: '
-                f'{stats["created"]}/{stats["updated"]}/{stats["renamed"]}')
+        text = memo_sync.summary(stats)
+        log(f'{text} · Ordner: {folder}')
+        return text
 
     def stop_server(self):
         if self.server is not None and self.server.poll() is None:

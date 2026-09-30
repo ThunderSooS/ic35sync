@@ -1,3 +1,41 @@
+# 3.4.0b6 · Notizen in beide Richtungen / Two-way notes
+
+## Deutsch
+
+### Neu
+- IC35-Notizen werden jetzt in **beide Richtungen** mit den Textdateien im Notizordner abgeglichen: Anlegen, Bearbeiten, Umbenennen (= Betreff) und Löschen wirken jeweils auf die andere Seite.
+- Neue Notizen am PC: `.txt`-Datei ohne Zusatz „[IC35-…]“ anlegen; sie wird übertragen und danach mit IC35-ID umbenannt.
+- Konflikte (auf beiden Seiten unterschiedlich geändert oder gelöscht und geändert) werden gemeldet; für diese Notiz wird nichts geschrieben.
+- Die Beschriftung in der App heißt jetzt **Notizordner:**.
+
+### Sicherheit
+- Jeder Schreibvorgang wird vom IC35 zurückgelesen; vor dem Abgleich wird eine geschützte Sicherung aller Notizen angelegt.
+- Kein Kürzen: zu lange Texte (Betreff 60, Text 255 Byte) oder Zeichen außerhalb Windows-1252 werden mit Grund übersprungen.
+- Fehlender Ordner, verschwundene Notizdateien oder ein plötzlich leerer IC35 halten den Notizabgleich an, ohne etwas zu löschen.
+- Unterbrochene Neuanlagen werden beim nächsten Lauf erkannt statt doppelt angelegt.
+
+### Hinweis
+Beim ersten Abgleich werden vorhandene Dateien aus 3.4.0b4/b5 mit den Notizen verknüpft. Eine vorher am PC gelöschte Datei wird dabei neu angelegt, weil es noch keinen gemeinsamen Stand gibt; erst danach wirkt Löschen am PC auch auf dem IC35. Im Notizordner keine anderen Textdateien ablegen, da jede `.txt`-Datei als neue Notiz gilt. Das Add-on ist unverändert (`IC35-Thunderbird-Bridge-3.4.0b5.xpi`). Das Setup ist nicht signiert. Falls Windows SmartScreen erscheint, bitte über **Weitere Informationen → Trotzdem ausführen** bestätigen.
+
+---
+
+## English
+
+### New
+- IC35 notes are now synchronized **both ways** with the text files in the notes folder: creating, editing, renaming (= subject) and deleting each apply to the other side.
+- New notes on the PC: create a `.txt` file without the “[IC35-…]” suffix; it is transferred and then renamed with its IC35 ID.
+- Conflicts (changed differently on both sides, or deleted and changed) are reported; nothing is written for that note.
+- The label in the app is now **Notizordner:** (notes folder).
+
+### Safety
+- Every write is read back from the IC35; a protected backup of all notes is saved before syncing.
+- No truncation: texts that are too long (subject 60, text 255 bytes) or characters outside Windows-1252 are skipped with a reason.
+- A missing folder, vanished note files or a suddenly empty IC35 stop the note sync without deleting anything.
+- Interrupted creations are detected on the next run instead of being created twice.
+
+### Note
+On the first sync, existing files from 3.4.0b4/b5 are linked to the notes. A file deleted on the PC before that is created again, because there is no common state yet; afterwards, deleting on the PC also deletes on the IC35. Do not keep other text files in the notes folder, as every `.txt` file counts as a new note. The add-on is unchanged (`IC35-Thunderbird-Bridge-3.4.0b5.xpi`). The setup is not signed. If Windows SmartScreen appears, please confirm via **More info → Run anyway**.
+
 # 3.4.0b5 · Texte aufgeräumt / Text cleanup
 
 ## Deutsch

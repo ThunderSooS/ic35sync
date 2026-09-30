@@ -1,4 +1,4 @@
-#define AppVersion "3.4.0b5"
+#define AppVersion "3.4.0b6"
 #ifndef BuildTest
   #define BuildTest 0
 #endif
