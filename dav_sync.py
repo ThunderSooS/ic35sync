@@ -9,6 +9,7 @@ import dav_model as model
 import ic35_protocol as p
 import todo_protocol as todo
 import private_storage as storage
+from task_delete_metadata import remote_unchanged_for_delete as _remote_unchanged_for_delete
 
 
 def device_snapshot(export):
@@ -145,7 +146,7 @@ def build_plan(bindings, device, remote, href_factory=None, zone='Europe/Berlin'
         elif not d and not r:
             add('forget', key, href)
         elif not d:
-            if r['semantic'] == binding['remote'] and r.get('content') == binding.get('remote_content', r.get('content')):
+            if _remote_unchanged_for_delete(r, binding):
                 add('delete_remote', key, href)
             else:
                 conflicts.append(key + ': Gerät gelöscht, Thunderbird geändert')
