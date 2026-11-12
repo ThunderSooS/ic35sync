@@ -1,23 +1,64 @@
+# Verification · IC35 Sync 3.4.0
+
+## Aktueller Stand / Current status
+
+Die Veröffentlichung v3.4.0 wurde am 12. November 2026 aus Quellcommit c5e230be5e31ea4629370b31229e5338d0c916a7 erstellt. Installer, vollständiges Windows-Ordnerpaket, passender Quellcode, Bridge 3.4.0.13, Prüfsummen und BUILD-MANIFEST.json sind als Release-Dateien vorhanden.
+
+Release v3.4.0 was published on November 12, 2026 from source commit c5e230be5e31ea4629370b31229e5338d0c916a7. Release assets include the installer, complete Windows folder package, matching source, bridge 3.4.0.13, checksums and BUILD-MANIFEST.json.
+
+## Buildprüfungen / Build checks
+
+Der Veröffentlichungsworkflow führt die Python-Tests, die synthetische EXE-Paketprüfung und den lokalen DAV-Schreib-/Lese-/Löschtest aus. Eine getrennte Testinstallation verwendet eine eigene AppId und einen temporären Ordner. Dabei werden die installierten Laufzeitdateien per SHA-256 verglichen, die installierte EXE geprüft und die Deinstallation kontrolliert. Erst danach werden Installer und Archive bereitgestellt und veröffentlicht.
+
+Der genaue Buildnachweis gehört zum jeweiligen BUILD-MANIFEST.json und Actions-Protokoll. Hier wird keine neue Gesamttestzahl behauptet. Die gemessene package_check_seconds-Zeit umfasst die vollständige synthetische Paketprüfung, nicht nur das Erscheinen des ersten Fensters.
+
+The publishing workflow gates publication on Python tests, synthetic executable/package checks, a local DAV create/read/delete check and an isolated test installation with a separate AppId. Installed runtime files are verified by SHA-256; the installed EXE and uninstall are checked. Consult each build's manifest and Actions log for exact evidence. No new total test count is asserted here. package_check_seconds measures the entire synthetic package check, not time to the first visible window.
+
+## Gemeldeter Gerätetest / Reported device test
+
+Der Nutzer stellte erfolgreiche Protokolle für die Übertragung zweier Aufgabenlöschungen sowie einen anschließenden erfolgreichen Kontrolllauf bereit. Beim Kontrolllauf traten die Aufgabenlöschungen nicht erneut auf. Zwei nicht zuordenbare Notizdateien wurden vom Nutzer manuell aus dem Sync-Ordner verschoben; danach meldete der Notizabgleich null Konflikte. Der Nutzer bestätigte anschließend den erfolgreichen Test des Ordnerpakets.
+
+Diese Bestätigung betrifft den gemeldeten Ablauf und ist keine Prüfung aller Geräte-, Dock-, Firmware- oder Anbieter-Kombinationen. Sie ist auch kein neuer Hardwaretest innerhalb des GitHub-Builds. Insbesondere ist die manuelle Notizbereinigung kein Nachweis einer allgemein reparierten Zuordnung und keine vollständige Hardwareabnahme sämtlicher Notiz-Schreiboperationen.
+
+The user supplied successful task-deletion and subsequent control-run logs, manually removed two orphaned note files from the sync folder, and subsequently confirmed that the folder build worked. This validates the reported scenario, not every hardware/provider combination or every note write operation. It is not a new physical-device test inside GitHub Actions.
+
+## Weiterhin offen / Remaining limits
+
+- Allgemeine Ursache verlorener Notizzuordnungen; keine pauschale Löschung nicht zuordenbarer Dateien.
+- Allgemeine Behebung von Windows-Zugriffssperren und eine garantierte Startzeit.
+- Vollständige bidirektionale Serien-, Einladungs- und ganztägige Terminverarbeitung.
+- Universelle Freigabe aller Thunderbird- oder Cloud-Provider-Versionen. Die Bridge-Kompatibilität richtet sich nach dem Manifest.
+
+Lost note mappings, every possible Windows access block, guaranteed launch timing and general recurrence/invitation/all-day synchronization are not claimed as universally resolved. Thunderbird compatibility follows the bridge manifest.
+
+## Historische Prüfprotokolle / Historical validation records
+
+Die folgenden Einträge bleiben unverändert als historische Nachweise erhalten. Ihre Versionsnummern, damaligen Testzahlen, Wine-Einschränkungen und damaligen Statusaussagen beschreiben die jeweilige frühere Ausgabe, nicht den aktuellen Veröffentlichungsstatus von 3.4.0.
+
+The following records are retained unchanged as historical evidence. Version numbers, old test counts, Wine limitations and status wording apply to those earlier builds, not to the current publication status of 3.4.0.
+
+---
+
 # Verification · 3.4.0b6
 
 ## Deutsch
 - 82 automatisierte Tests, davon 17 für den Notizabgleich: Erstabgleich, Wiederholung ohne Änderungen, Bearbeiten und Umbenennen auf beiden Seiten, Löschen in beide Richtungen, Neuanlage am PC, Konflikte, gleiche Änderung auf beiden Seiten, keine Kürzung, CRLF-Längenprüfung, Sicherheitsstopps (Ordner fehlt, alle Dateien fehlen, IC35 leer), Wiederaufnahme einer unterbrochenen Neuanlage, Verknüpfung vorhandener Dateien und das Schreibformat an den IC35 (Befehle 01 08/01 09/01 02, Memo-Magic 60 16 99 laut ic35link 1.18, Blöcke zu 80 Byte).
-- Unter Wine gebaut; dort schlägt der Radicale-Integrationstest wegen des Wine-Dateisystems fehl, `smoke_windows.py` und die Installer-Prüfung liefen nicht.
-- **Noch nicht an echter IC35-Hardware geprüft:** Schreiben, Ändern und Löschen von Notizen. Vor dem ersten Test ein Vollbackup erstellen und mit einer Testnotiz beginnen.
+- Unter Wine gebaut; dort schlägt der Radicale-Integrationstest wegen des Wine-Dateisystems fehl, smoke_windows.py und die Installer-Prüfung liefen nicht.
+- Noch nicht an echter IC35-Hardware geprüft: Schreiben, Ändern und Löschen von Notizen. Vor dem ersten Test ein Vollbackup erstellen und mit einer Testnotiz beginnen.
 
 ## English
 - 82 automated tests, 17 of them for note sync: initial sync, repeat without changes, editing and renaming on both sides, deletion both ways, creation on the PC, conflicts, identical change on both sides, no truncation, CRLF length check, safety stops (folder missing, all files missing, IC35 empty), resuming an interrupted creation, linking existing files and the IC35 write format (commands 01 08/01 09/01 02, memo magic 60 16 99 per ic35link 1.18, 80-byte blocks).
-- Built under Wine; there the Radicale integration test fails due to the Wine file system, `smoke_windows.py` and the installer check were not run.
-- **Not yet verified on real IC35 hardware:** writing, updating and deleting notes. Make a full backup before the first test and start with a test note.
+- Built under Wine; there the Radicale integration test fails due to the Wine file system, smoke_windows.py and the installer check were not run.
+- Not yet verified on real IC35 hardware: writing, updating and deleting notes. Make a full backup before the first test and start with a test note.
 
 # Verification · 3.4.0b5
 
 ## Deutsch
-- Nur Textänderungen in App und Add-on; 67 automatisierte Tests wie in 3.4.0b4 (unter Wine: Radicale-Integrationstest schlägt wegen des Wine-Dateisystems fehl; `smoke_windows.py` und die Installer-Prüfung liefen dort nicht).
+- Nur Textänderungen in App und Add-on; 67 automatisierte Tests wie in 3.4.0b4 (unter Wine: Radicale-Integrationstest schlägt wegen des Wine-Dateisystems fehl; smoke_windows.py und die Installer-Prüfung liefen dort nicht).
 - Die gebaute XPI enthält Version 3.4.0.13 und keine persönlichen Beispielnamen.
 
 ## English
-- Text-only changes in app and add-on; 67 automated tests as in 3.4.0b4 (under Wine the Radicale integration test fails due to the Wine file system; `smoke_windows.py` and the installer check were not run there).
+- Text-only changes in app and add-on; 67 automated tests as in 3.4.0b4 (under Wine the Radicale integration test fails due to the Wine file system; smoke_windows.py and the installer check were not run there).
 - The built XPI contains version 3.4.0.13 and no personal example names.
 
 # Verification · 3.4.0b4
@@ -26,14 +67,14 @@
 
 - 67 automatisierte Tests, davon 2 neue für die Notizablage (sichere Dateinamen, reservierte Windows-Namen, Anlegen, Aktualisieren, Umbenennen bei geändertem Betreff, keine Löschung, fremde Dateien bleiben unberührt, UTF-8 mit Windows-Zeilenumbrüchen).
 - Die Notizen werden nur lesend über die bestehenden IC35-Lesefunktionen (Datenbank öffnen, zählen, per Index lesen, schließen) abgerufen; es werden keine Records oder Change-Flags geschrieben.
-- Der Build dieser Ausgabe wurde unter Wine erstellt. Dort schlägt der Radicale-Integrationstest wegen des Wine-Dateisystems fehl; `smoke_windows.py` und die isolierte Installer-Prüfung liefen dort nicht. Beides sollte unter echtem Windows wiederholt werden.
+- Der Build dieser Ausgabe wurde unter Wine erstellt. Dort schlägt der Radicale-Integrationstest wegen des Wine-Dateisystems fehl; smoke_windows.py und die isolierte Installer-Prüfung liefen dort nicht. Beides sollte unter echtem Windows wiederholt werden.
 - Noch nicht an echter IC35-Hardware geprüft: Auslesen der Notizen nach dem Abgleich innerhalb derselben Dock-Verbindung.
 
 ## English
 
 - 67 automated tests, including 2 new ones for note export (safe file names, reserved Windows names, create, update, rename on subject change, no deletion, unrelated files untouched, UTF-8 with Windows line endings).
 - Notes are read read-only using the existing IC35 read functions (open database, count, read by index, close); no records or change flags are written.
-- This release was built under Wine. There, the Radicale integration test fails due to the Wine file system; `smoke_windows.py` and the isolated installer check were not run. Both should be repeated on real Windows.
+- This release was built under Wine. There, the Radicale integration test fails due to the Wine file system; smoke_windows.py and the isolated installer check were not run. Both should be repeated on real Windows.
 - Not yet verified on real IC35 hardware: reading notes after reconciliation within the same dock connection.
 
 # Verification · 3.4.0b1

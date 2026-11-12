@@ -1,35 +1,9 @@
-# Experimental task deletion candidate
+# Historischer DTSTAMP-Testpatch
 
-Status: staged patch only; dav_sync.py is NOT modified by this commit. No release or EXE is built.
-The user's actual differing Thunderbird properties have NOT been identified.
-Do not use this candidate to delete real tasks until the cause is confirmed.
+Diese Datei dokumentiert einen überholten Zwischenschritt. patches/task-delete-dtstamp.patch ist nicht der aktuelle Fix und darf nicht auf den veröffentlichten Quellstand angewendet werden.
 
-The patch tolerates only a valid root-VTODO DTSTAMP value change for tasks.
-Semantic fields must remain equal. LAST-MODIFIED, UID, status, due date,
-LOCATION, unknown properties and all other text stay protected.
+IC35 Sync 3.4.0 verwendet task_delete_metadata.py direkt aus dav_sync.py. Der aktuelle Vergleich berücksichtigt ausschließlich gültige Wertänderungen von DTSTAMP und LAST-MODIFIED bei Aufgabenlöschungen; andere Eigenschaften bleiben geschützt. Eine Build-Injektion ist nicht mehr erforderlich.
 
-Run isolated baseline tests (expects the existing DTSTAMP conflict):
+Die aktuellen Tests stehen in tests/test_task_delete_dtstamp_candidate.py; der Dateiname ist historisch. Für einen normalen Windows-Build scripts/build_final_release.py ohne --publish verwenden. Benutzeranleitung und Grenzen stehen in ../README.md, ../RELEASE-NOTES.md und ../VALIDATION.md.
 
-```powershell
-python -m unittest discover -s tests -p test_task_delete_dtstamp_candidate.py -v
-```
-
-Run the candidate in memory, without modifying source or accessing hardware:
-
-```powershell
-$env:IC35_TEST_DTSTAMP_CANDIDATE = '1'
-python -m unittest discover -s tests -p test_task_delete_dtstamp_candidate.py -v
-Remove-Item Env:IC35_TEST_DTSTAMP_CANDIDATE
-```
-
-To apply the staged diff in a disposable checkout, first run:
-
-```powershell
-git apply --check patches/task-delete-dtstamp.patch
-git apply patches/task-delete-dtstamp.patch
-```
-
-Then run the complete project suite in its configured Windows development environment.
-The full suite, real Thunderbird, Windows DPAPI, the installed b4 EXE and IC35 hardware
-have not been validated with this candidate. A source patch does not update an installed EXE.
-No personal task titles, profiles, local paths or device dumps are included.
+Die alte Patchdatei bleibt nur zur Nachvollziehbarkeit erhalten. Frühere Anleitungen zur In-Memory-Aktivierung und zur manuellen Anwendung gelten nicht für 3.4.0.

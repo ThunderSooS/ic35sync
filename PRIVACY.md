@@ -1,4 +1,4 @@
-# Datenverarbeitung / Data handling · IC35 Sync Beta 3.4.0b6
+# Datenverarbeitung / Data handling · IC35 Sync 3.4.0
 
 Herausgeber / Publisher: Christian Thomas. Kontakt / Contact: c.thomas.nrw@gmail.com.
 
@@ -18,6 +18,8 @@ Der Herausgeber erhält Supportdateien nur, wenn Nutzer diese freiwillig zusende
 
 Diese Datei beschreibt die Desktop-App. Hosting-Websites und Downloadplattformen verarbeiten Aufrufe nach ihren eigenen Datenschutzhinweisen. Änderungen an einer öffentlich gehosteten Datenschutzerklärung werden durch dieses lokale Paket nicht automatisch veröffentlicht.
 
+Die separat gestartete Aufgaben-Diagnose vergleicht den gespeicherten Stand der festgelegten Zielaufgaben mit den aktuellen Daten. Ihr Bericht enthält Eigenschaftsnamen und Vergleichsergebnisse statt Aufgabentiteln, Notiztexten oder Kopplungscodes. Der Nutzer wählt den Speicherort; es erfolgt kein automatischer Upload. Die Diagnose schreibt keine Kalender- oder Gerätedaten. Allgemeine Sync-Protokolle können dagegen persönliche Inhalte enthalten.
+
 ## English
 
 The optional Thunderbird add-on exchanges the selected calendar's contents with the sync app over a pairing-code-protected loopback connection (port 5234). It reads and writes that calendar through Thunderbird. For an existing network calendar, Thunderbird transfers changes to and from its provider, such as Google. The account login stays in Thunderbird; Google passwords and OAuth tokens are not passed to the sync app. The local collections described below remain an alternative source and are still used for contacts.
@@ -33,3 +35,5 @@ Local DAV collections and Thunderbird caches are ordinary local files. Sync stat
 The publisher receives support files only when voluntarily sent by the user. They are used solely to resolve the request, not sold or used for advertising/profiling, and deleted no later than 30 days after the request is closed. When sent by email, the email provider processes the message for delivery and storage. Send only necessary information, preferably anonymized.
 
 This file describes the desktop app. Hosting and download sites process visits under their own privacy notices. This local package does not automatically publish changes to a hosted privacy policy.
+
+The separately launched task diagnostic compares stored baselines for its fixed target tasks with current data. Its report contains property names and comparison results rather than task titles, note contents or pairing codes. The user chooses where to save it; no automatic upload occurs. The diagnostic does not write calendar or device data. General synchronization logs, in contrast, can contain personal content.
