@@ -1,0 +1,58 @@
+--- a/dav_sync.py
++++ b/dav_sync.py
+@@ -129,1 +129,54 @@
+-def build_plan(bindings, device, remote, href_factory=None, zone='Europe/Berlin'):
++def _task_content_unchanged(before, after):
++    """Experimental: tolerate only a valid root-VTODO DTSTAMP value change."""
++    if before == after:
++        return True
++    if not isinstance(before, str) or not isinstance(after, str):
++        return False
++    from datetime import datetime
++    import re
++
++    def masked(raw):
++        stack, lines, stamps, todos = [], [], 0, 0
++        for line in raw.splitlines(keepends=True):
++            body = line.rstrip('\r\n')
++            ending = line[len(body):]
++            if body.startswith('BEGIN:'):
++                stack.append(body[6:])
++                if stack == ['VCALENDAR', 'VTODO']:
++                    todos += 1
++            elif body.startswith('END:'):
++                if not stack or stack.pop() != body[4:]:
++                    raise ValueError('Unbalanced component')
++            elif stack == ['VCALENDAR', 'VTODO'] and body.startswith('DTSTAMP:'):
++                value = body[8:]
++                if not re.fullmatch(r'[0-9]{8}T[0-9]{6}Z', value):
++                    raise ValueError('Invalid DTSTAMP')
++                datetime.strptime(value, '%Y%m%dT%H%M%SZ')
++                stamps += 1
++                line = 'DTSTAMP:<transport-time>' + ending
++            lines.append(line)
++        if stack or todos != 1 or stamps != 1:
++            raise ValueError('Unsupported task structure')
++        return ''.join(lines)
++
++    try:
++        return masked(before) == masked(after)
++    except (ValueError, TypeError):
++        return False
++
++
++def _remote_unchanged_for_delete(remote, binding):
++    if remote['semantic'] != binding['remote']:
++        return False
++    current = remote.get('content')
++    previous = binding.get('remote_content', current)
++    if previous == current:
++        return True
++    return (remote.get('kind') == 'tasks'
++            and _task_content_unchanged(previous, current))
++
++
++def build_plan(bindings, device, remote, href_factory=None, zone='Europe/Berlin'):
+@@ -165,1 +218,1 @@
+-            if r['semantic'] == binding['remote'] and r.get('content') == binding.get('remote_content', r.get('content')):
++            if _remote_unchanged_for_delete(r, binding):

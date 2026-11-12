@@ -1,0 +1,74 @@
+name: Read-only task diagnosis EXE
+on:
+  push:
+    branches: [experiment/task-delete-dtstamp]
+    paths:
+      - diagnose_tasks.py
+      - .github/workflows/diagnose-tasks.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    if: github.ref == 'refs/heads/experiment/task-delete-dtstamp'
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          architecture: x64
+      - name: Install dependencies
+        shell: pwsh
+        run: |
+          python -m pip install -r build-requirements.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -m pip check
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Synthetic read-only diagnostic checks
+        shell: pwsh
+        run: |
+          python diagnose_tasks.py --self-test
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -m unittest discover -s tests -q
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Build dedicated diagnostic EXE
+        shell: pwsh
+        run: |
+          python -m PyInstaller --noconfirm --clean --onefile --windowed --collect-all tzdata --name IC35TaskDiagnostic diagnose_tasks.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Add instructions and provenance
+        shell: python
+        run: |
+          import hashlib
+          import os
+          from pathlib import Path
+          root = Path('diagnostic-package')
+          root.mkdir()
+          (root / 'ANLEITUNG.txt').write_text(
+              'IC35 TASK CONFLICT DIAGNOSIS - READ ONLY\n'
+              'Close all IC35 Sync windows. Leave paired Thunderbird running.\n'
+              'Do not press the IC35 dock button.\n'
+              'Start IC35TaskDiagnostic.exe, confirm, then choose a NEW JSON report filename.\n'
+              'Share only the generated JSON report, not your state files or pairing file.\n'
+              'This reads tasks:15 and tasks:20 and the existing comparison state.\n'
+              'It does not repair, synchronize, write or delete calendar/device/state data.\n'
+              'Only the user-selected diagnostic report is written.\n'
+              'If it fails, do not reset state, restore tasks or disable antivirus.\n'
+              'Synthetic source tests passed before packaging; real-data validation is pending.\n', encoding='utf-8')
+          exe = Path('dist/IC35TaskDiagnostic.exe')
+          if not exe.is_file() or exe.stat().st_size == 0:
+              raise RuntimeError('Diagnostic EXE missing')
+          (root / 'BUILD.txt').write_text('Commit: ' + os.environ['GITHUB_SHA'] + '\nSHA256: ' + hashlib.sha256(exe.read_bytes()).hexdigest() + '\n', encoding='utf-8')
+      - uses: actions/upload-artifact@v4
+        with:
+          name: IC35-readonly-task-diagnosis-${{ github.run_number }}
+          retention-days: 14
+          if-no-files-found: error
+          path: |
+            dist/IC35TaskDiagnostic.exe
+            diagnostic-package/
+            diagnose_tasks.py
+            LICENSE
+            THIRD_PARTY_NOTICES.md
