@@ -4,19 +4,19 @@ from pathlib import Path
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = '3.4.0b6'
+VERSION = '3.4.0'
 FILES = ['thunderbird_start.py', 'app.py', 'desktop_entry.py', 'dav_model.py', 'dav_sync.py', 'bridge.py', 'ic35_protocol.py',
          'todo_protocol.py', 'manager_protocol.py', 'private_storage.py', 'sync_sounds.py',
          'radicale_windows_launcher.py', 'requirements.txt', 'build-requirements.txt', 'LICENSE',
          'THIRD_PARTY_NOTICES.md', 'README.md', 'README.en.md', 'PRIVACY.md', 'CHANGELOG.md',
          'VALIDATION.md', '.gitignore', 'installer.iss', 'thunderbird_rpc.py', 'thunderbird_calendar.py',
-         'memo_sync.py']
+         'memo_sync.py', 'task_delete_metadata.py', 'diagnose_tasks.py', 'RELEASE-NOTES.md']
 selected = [ROOT / name for name in FILES]
 for folder in ('scripts', 'tests', 'sounds', 'build-licenses', 'addon'):
     selected += [p for p in (ROOT / folder).rglob('*') if p.is_file() and '__pycache__' not in p.parts and p.suffix != '.pyc']
 out = ROOT / 'release'
 out.mkdir(exist_ok=True)
-target = out / f'IC35-Sync-Beta-{VERSION}-Source.zip'
+target = out / f'IC35-Sync-{VERSION}-Source.zip'
 with zipfile.ZipFile(target, 'w', zipfile.ZIP_DEFLATED) as archive:
     for path in selected:
         archive.write(path, f'IC35-Thunderbird-{VERSION}/' + path.relative_to(ROOT).as_posix())

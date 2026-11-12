@@ -26,7 +26,7 @@ import sync_sounds
 import thunderbird_rpc
 import thunderbird_calendar
 
-VERSION = '3.4.0b6'
+VERSION = '3.4.0'
 ROOT = Path(os.environ.get('IC35_TB_DATA_DIR') or Path(os.environ.get('APPDATA', Path.home())) / 'IC35ThunderbirdAlpha')
 PORT = 5233
 BASE = f'http://127.0.0.1:{PORT}'
@@ -36,7 +36,7 @@ class App(tk.Tk):
     def __init__(self):
         super().__init__()
         ROOT.mkdir(parents=True, exist_ok=True)
-        self.title(f'IC35 Sync Beta · {VERSION}')
+        self.title(f'IC35 Sync · {VERSION}')
         self.geometry('1400x840')
         self.minsize(1180, 720)
         self.messages = queue.Queue()
@@ -197,7 +197,7 @@ class App(tk.Tk):
             messagebox.showinfo('Thunderbird-Add-on koppeln',
                 'Der Kopplungscode wurde in die Zwischenablage kopiert.\n\n'
                 '1. In Thunderbird → Add-ons und Themes → Zahnrad → Add-on aus Datei installieren.\n'
-                '2. IC35-Thunderbird-Bridge-3.4.0b5.xpi auswählen.\n'
+                '2. IC35-Thunderbird-Bridge-3.4.0.13.xpi auswählen.\n'
                 '3. In den Add-on-Einstellungen den Code einfügen und „Verbinden“ drücken.\n'
                 '4. Hier „Kalender und Aufgabenlisten laden“ anklicken und den gewünschten Kalender bei Terminen auswählen.\n\n'
                 'Die XPI-Datei liegt neben der installierten EXE. Thunderbird geöffnet lassen.')

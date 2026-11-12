@@ -19,7 +19,7 @@ with tempfile.TemporaryDirectory(prefix='ic35-install-check-') as tmp:
     try:
         assert (target / 'licenses/pyserial/LICENSE.txt').exists()
         assert (target / 'README.en.md').exists()
-        assert (target / 'IC35-Thunderbird-Bridge-3.4.0b5.xpi').exists()
+        assert (target / 'IC35-Thunderbird-Bridge-3.4.0.13.xpi').exists()
         assert (target / '_internal').is_dir()
         for relative, digest in expected.items():
             installed = target / relative

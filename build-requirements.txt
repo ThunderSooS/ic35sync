@@ -1,12 +1,18 @@
 altgraph==0.17.5
+argcomplete==3.7.2
 certifi==2026.7.22
 charset-normalizer==3.5.1
+click==8.5.0
+colorama==0.4.6
 defusedxml==0.7.1
+filelock==4.2.7
 idna==3.20
 libpass==1.9.3
 packaging==26.3
 pefile==2024.8.26
 pika==1.4.4
+pipx==1.18.12
+platformdirs==4.14.3
 pyinstaller==6.22.3
 pyinstaller-hooks-contrib==2026.7
 pyserial==3.5
@@ -19,4 +25,5 @@ setuptools==84.0.0
 six==1.17.0
 tzdata==2026.4
 urllib3==2.8.0
+userpath==1.9.2
 vobject==0.9.9

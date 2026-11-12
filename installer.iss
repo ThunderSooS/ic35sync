@@ -1,4 +1,4 @@
-#define AppVersion "3.4.0b6"
+#define AppVersion "3.4.0"
 #ifndef BuildTest
   #define BuildTest 0
 #endif
@@ -8,11 +8,11 @@ AppId={{A576BB3A-D586-4EB7-B7D7-679D9CEB99AF}
 #else
 AppId={{D4AFB827-62E8-4C72-9856-F7FB10ED5DB5}
 #endif
-AppName=IC35 Sync Beta
+AppName=IC35 Sync
 AppVersion={#AppVersion}
 AppPublisher=Christian Thomas
 DefaultDirName={localappdata}\Programs\IC35ThunderbirdAlpha
-DefaultGroupName=IC35 Sync Beta
+DefaultGroupName=IC35 Sync
 PrivilegesRequired=lowest
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
@@ -21,7 +21,7 @@ OutputDir=.installer-test
 OutputBaseFilename=Isolated-Test-Setup
 #else
 OutputDir=release
-OutputBaseFilename=IC35-Sync-Beta-{#AppVersion}-Setup
+OutputBaseFilename=IC35-Sync-{#AppVersion}-Setup
 #endif
 Compression=lzma2
 SolidCompression=yes
@@ -36,7 +36,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: desktopicon; Description: "Desktop-Verknüpfung / Desktop shortcut"; Flags: unchecked
 [Files]
 Source: "dist\IC35Thunderbird\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "release\IC35-Thunderbird-Bridge-3.4.0b5.xpi"; DestDir: "{app}"; Flags: ignoreversion
+Source: "release\IC35-Thunderbird-Bridge-3.4.0.13.xpi"; DestDir: "{app}"; Flags: ignoreversion
 Source: "LICENSE"; DestDir: "{app}"; Flags: ignoreversion
 Source: "README.md"; DestDir: "{app}"; Flags: ignoreversion
 Source: "README.en.md"; DestDir: "{app}"; Flags: ignoreversion
@@ -46,7 +46,7 @@ Source: "CHANGELOG.md"; DestDir: "{app}"; Flags: ignoreversion
 Source: "build-requirements.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: "build-licenses\*"; DestDir: "{app}\licenses"; Flags: ignoreversion recursesubdirs createallsubdirs
 [Icons]
-Name: "{group}\IC35 Sync Beta"; Filename: "{app}\IC35Thunderbird.exe"
-Name: "{autodesktop}\IC35 Sync Beta"; Filename: "{app}\IC35Thunderbird.exe"; Tasks: desktopicon
+Name: "{group}\IC35 Sync"; Filename: "{app}\IC35Thunderbird.exe"
+Name: "{autodesktop}\IC35 Sync"; Filename: "{app}\IC35Thunderbird.exe"; Tasks: desktopicon
 [Run]
-Filename: "{app}\IC35Thunderbird.exe"; Description: "IC35 Sync Beta starten / Launch"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\IC35Thunderbird.exe"; Description: "IC35 Sync starten / Launch"; Flags: nowait postinstall skipifsilent
