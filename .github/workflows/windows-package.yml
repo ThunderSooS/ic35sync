@@ -24,7 +24,8 @@ jobs:
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       IC35_EXPECT_TASK_METADATA_FIX: '1'
-      PUBLISH_RELEASE: ${{ (github.event_name == 'push' && github.event.head_commit.message == 'release: publish IC35 Sync 3.4.0') || (github.event_name == 'workflow_dispatch' && inputs.publish) }}
+      PUBLISH_RELEASE: >-
+        ${{ (github.event_name == 'push' && github.event.head_commit.message == 'release: publish IC35 Sync 3.4.0') || (github.event_name == 'workflow_dispatch' && inputs.publish) }}
     defaults:
       run:
         shell: pwsh
