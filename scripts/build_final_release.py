@@ -1,0 +1,208 @@
+"""Build IC35 Sync 3.4.0. Publish only with explicit --publish authorization.
+Publication commits release metadata, atomically pushes main and tag, then creates
+one public GitHub release. Existing tags/releases are never overwritten.
+"""
+import ast
+import hashlib
+import json
+import os
+from pathlib import Path
+import shutil
+import subprocess
+import sys
+import zipfile
+
+VERSION = '3.4.0'
+TAG = 'v3.4.0'
+TITLE = 'IC35 Sync 3.4.0'
+REPOSITORY = 'ThunderSooS/ic35sync'
+ADDON = 'IC35-Thunderbird-Bridge-3.4.0.13.xpi'
+
+
+def replace_checked(text, old, new):
+    if old in text:
+        return text.replace(old, new)
+    if new in text:
+        return text
+    raise RuntimeError('Unexpected release source structure: ' + old)
+
+
+def prepare(root):
+    old_addon = 'IC35-Thunderbird-Bridge-3.4.0b5.xpi'
+    changes = {
+        'app.py': [("VERSION = '3.4.0b6'", "VERSION = '3.4.0'"),
+                   ('IC35 Sync Beta', 'IC35 Sync'), (old_addon, ADDON)],
+        'installer.iss': [('#define AppVersion "3.4.0b6"', '#define AppVersion "3.4.0"'),
+                          ('IC35 Sync Beta', 'IC35 Sync'),
+                          ('IC35-Sync-Beta-', 'IC35-Sync-'), (old_addon, ADDON)],
+        'scripts/package_source.py': [("VERSION = '3.4.0b6'", "VERSION = '3.4.0'"),
+                                     ('IC35-Sync-Beta-', 'IC35-Sync-'),
+                                     ("'memo_sync.py']", "'memo_sync.py', 'task_delete_metadata.py', 'diagnose_tasks.py', 'RELEASE-NOTES.md']")],
+        'scripts/build_addon.py': [(old_addon, ADDON)],
+        'scripts/test_installer.py': [(old_addon, ADDON)]
+    }
+    staged = {}
+    for name, replacements in changes.items():
+        text = (root / name).read_text(encoding='utf-8-sig')
+        for old, new in replacements:
+            text = replace_checked(text, old, new)
+        if name.endswith('.py'):
+            compile(text, name, 'exec')
+        staged[name] = text
+    manifest = json.loads((root / 'addon/manifest.json').read_text(encoding='utf-8-sig'))
+    if manifest['version'] != '3.4.0.13':
+        raise RuntimeError('Unexpected independent bridge version; refusing downgrade or relabel')
+    if "'--onedir'" not in (root / 'scripts/build_windows.py').read_text(encoding='utf-8-sig'):
+        raise RuntimeError('Verified folder packaging required')
+    sync = (root / 'dav_sync.py').read_text(encoding='utf-8-sig')
+    if '_remote_unchanged_for_delete(r, binding)' not in sync:
+        raise RuntimeError('Permanent task deletion fix missing')
+    notes = (root / 'RELEASE-NOTES.md').read_text(encoding='utf-8')
+    staged['README.md'] = (
+        '# IC35 Sync 3.4.0\n\n'
+        'Synchronisation des Siemens IC35 mit Thunderbird unter Windows.\n\n'
+        '## Download und Installation\n'
+        'Installer: https://github.com/ThunderSooS/ic35sync/releases/tag/v3.4.0\n\n'
+        'Alle IC35-Sync-Fenster schließen, Daten sichern und IC35-Sync-3.4.0-Setup.exe starten. '
+        'Vorhandene Datenordner und Sync-Zuordnungen nicht löschen.\n\n'
+        '## Verwendung\n'
+        'Thunderbird geöffnet lassen, Bridge koppeln, Kalender und Aufgabenlisten auswählen. '
+        'Den Geräteabgleich in der App starten und die Dock-Taste erst bei Aufforderung drücken. '
+        'Für Notizen den gewünschten Textdateiordner wählen.\n\n'
+        'Beim manuellen Start muss der gesamte Programmordner mit _internal zusammenbleiben. '
+        'Die EXE nicht einzeln herauskopieren.\n\n'
+        'Die Bridge hat die unabhängige Version 3.4.0.13; ihre Thunderbird-Kompatibilität steht im Add-on-Manifest.\n\n'
+        '## Änderungen und Grenzen\nSiehe RELEASE-NOTES.md und die historische CHANGELOG.md.\n'
+    )
+    staged['README.en.md'] = (
+        '# IC35 Sync 3.4.0\n\n'
+        'Synchronize a Siemens IC35 with Thunderbird on Windows.\n\n'
+        'Download: https://github.com/ThunderSooS/ic35sync/releases/tag/v3.4.0\n\n'
+        'Close IC35 Sync, back up your data and run IC35-Sync-3.4.0-Setup.exe. '
+        'Do not delete existing data folders or synchronization state.\n\n'
+        'Keep Thunderbird open, pair the bridge, select calendars and task lists, and start synchronization in the app. '
+        'Press the dock button only when prompted. Select a text-file folder for notes.\n\n'
+        'Manual use requires the entire program folder including _internal. Do not copy only the EXE.\n\n'
+        'The bridge uses the independent version 3.4.0.13. Its manifest specifies Thunderbird compatibility. '
+        'See RELEASE-NOTES.md for changes and remaining limitations, and CHANGELOG.md for historical entries.\n'
+    )
+    history = (root / 'CHANGELOG.md').read_text(encoding='utf-8-sig')
+    if not history.startswith('# IC35 Sync 3.4.0\n'):
+        staged['CHANGELOG.md'] = notes + '\n---\n\n' + history
+    for name, text in staged.items():
+        (root / name).write_bytes(text.encode('utf-8'))
+    return sorted(staged)
+
+
+def run(root, *args, timeout=1200):
+    subprocess.run(list(args), cwd=root, check=True, timeout=timeout)
+
+
+def remote_head(root):
+    result = subprocess.run(['git', 'ls-remote', 'origin', 'refs/heads/main'], cwd=root,
+                            check=True, capture_output=True, text=True).stdout.split()
+    if len(result) != 2:
+        raise RuntimeError('Cannot resolve remote main')
+    return result[0]
+
+
+def main():
+    root = Path(__file__).resolve().parents[1]
+    publish = sys.argv[1:] == ['--publish']
+    if sys.argv[1:] not in ([], ['--publish']) or sys.platform != 'win32':
+        raise RuntimeError('Windows runner and supported arguments required')
+    original_sha = os.environ.get('GITHUB_SHA', 'local')
+    if publish:
+        if os.environ.get('GITHUB_REPOSITORY') != REPOSITORY or os.environ.get('GITHUB_REF') != 'refs/heads/main':
+            raise RuntimeError('Publication allowed only from the resolved repository main branch')
+        if not shutil.which('gh') or not os.environ.get('GH_TOKEN'):
+            raise RuntimeError('Authenticated GitHub CLI required')
+        if remote_head(root) != original_sha:
+            raise RuntimeError('main moved; refusing publication of a stale build')
+        existing = subprocess.run(['git', 'ls-remote', '--tags', 'origin', 'refs/tags/' + TAG],
+                                   cwd=root, check=True, capture_output=True).stdout
+        if existing:
+            raise RuntimeError('Release tag already exists; never overwrite')
+        run(root, 'git', 'diff', '--exit-code')
+    changed = prepare(root)
+    os.environ['IC35_EXPECT_TASK_METADATA_FIX'] = '1'
+    run(root, sys.executable, 'scripts/build_windows.py')
+    checks = json.loads((root / 'smoke-results.json').read_text(encoding='utf-8'))
+    if checks.get('version') != VERSION:
+        raise RuntimeError('EXE version mismatch')
+    shutil.copyfile(root / 'smoke-results.json', root / 'smoke-results-exe.json')
+    compiler = shutil.which('ISCC.exe')
+    if not compiler:
+        matches = sorted(Path(os.environ.get('ProgramFiles(x86)', r'C:\Program Files (x86)')).glob('Inno Setup */ISCC.exe'), reverse=True)
+        compiler = str(matches[0]) if matches else None
+    if not compiler:
+        raise RuntimeError('Inno Setup compiler missing')
+    run(root, compiler, '/DBuildTest=1', 'installer.iss', timeout=300)
+    run(root, sys.executable, 'scripts/test_installer.py', timeout=300)
+    run(root, compiler, 'installer.iss', timeout=300)
+    run(root, sys.executable, 'scripts/package_source.py', timeout=300)
+    release = root / 'release'
+    bundle = root / 'dist/IC35Thunderbird'
+    source = release / 'IC35-Sync-3.4.0-Source.zip'
+    with zipfile.ZipFile(source) as archive:
+        for name in ('app.py', 'dav_sync.py', 'task_delete_metadata.py', 'installer.iss', 'RELEASE-NOTES.md'):
+            if archive.read('IC35-Thunderbird-3.4.0/' + name) != (root / name).read_bytes():
+                raise RuntimeError('Source package differs from build inputs: ' + name)
+    portable = release / 'IC35-Sync-3.4.0-Windows.zip'
+    entries = {path.relative_to(bundle).as_posix(): path for path in bundle.rglob('*') if path.is_file()}
+    for name in ('LICENSE', 'README.md', 'README.en.md', 'THIRD_PARTY_NOTICES.md', 'PRIVACY.md', 'CHANGELOG.md', 'RELEASE-NOTES.md'):
+        entries[name] = root / name
+    entries[ADDON] = release / ADDON
+    for path in (root / 'build-licenses').rglob('*'):
+        if path.is_file():
+            entries['licenses/' + path.relative_to(root / 'build-licenses').as_posix()] = path
+    if 'IC35Thunderbird.exe' not in entries or not any(name.startswith('_internal/') for name in entries):
+        raise RuntimeError('Complete folder bundle required')
+    with zipfile.ZipFile(portable, 'w', zipfile.ZIP_DEFLATED) as archive:
+        for name, path in sorted(entries.items()):
+            archive.write(path, 'IC35-Sync-3.4.0/' + name)
+    with zipfile.ZipFile(portable) as archive:
+        if archive.testzip() is not None:
+            raise RuntimeError('Portable ZIP integrity check failed')
+    assets = [release / 'IC35-Sync-3.4.0-Setup.exe', source, portable, release / ADDON]
+    for path in assets:
+        if not path.is_file() or not path.stat().st_size:
+            raise RuntimeError('Release asset missing: ' + path.name)
+    final_sha = original_sha
+    if publish:
+        if remote_head(root) != original_sha:
+            raise RuntimeError('main moved during validation; refusing publication')
+        run(root, 'git', 'config', 'user.name', 'IC35 Release Automation')
+        run(root, 'git', 'config', 'user.email', 'release@users.noreply.github.com')
+        run(root, 'git', 'add', '--', *changed, 'build-requirements.txt', 'RELEASE-NOTES.md')
+        pending = subprocess.run(['git', 'diff', '--cached', '--quiet'], cwd=root).returncode
+        if pending == 1:
+            run(root, 'git', 'commit', '-m', 'chore: finalize IC35 Sync 3.4.0 source metadata')
+        elif pending != 0:
+            raise RuntimeError('Cannot inspect staged release metadata')
+        final_sha = subprocess.run(['git', 'rev-parse', 'HEAD'], cwd=root, check=True, capture_output=True, text=True).stdout.strip()
+    hashes = {path.name: hashlib.sha256(path.read_bytes()).hexdigest() for path in assets}
+    manifest = {'version': VERSION, 'bundle_mode': 'onedir', 'source_commit': final_sha,
+                'workflow_commit': original_sha, 'source_metadata_paths': changed,
+                'unit_tests_and_exe_checks': 'passed', 'isolated_installer_check': 'passed',
+                'runtime_files_verified_by_sha256': True,
+                'real_device_test_in_this_run': 'not performed',
+                'production_installer_installation_in_this_run': 'not performed', 'sha256': hashes}
+    evidence = release / 'BUILD-MANIFEST.json'
+    evidence.write_text(json.dumps(manifest, indent=2), encoding='utf-8')
+    assets.append(evidence)
+    hashes[evidence.name] = hashlib.sha256(evidence.read_bytes()).hexdigest()
+    sums = release / 'SHA256SUMS.txt'
+    sums.write_text(''.join(value + '  ' + name + '\n' for name, value in sorted(hashes.items())), encoding='utf-8')
+    assets.append(sums)
+    if publish:
+        run(root, 'git', 'tag', '-a', TAG, '-m', TITLE)
+        run(root, 'git', 'push', '--atomic', 'origin', 'HEAD:refs/heads/main', 'refs/tags/' + TAG)
+        run(root, 'gh', 'release', 'create', TAG, '--repo', REPOSITORY, '--verify-tag',
+            '--target', final_sha, '--title', TITLE, '--notes-file', str(root / 'RELEASE-NOTES.md'),
+            '--latest', '--prerelease=false', '--draft=false', *map(str, assets), timeout=600)
+    print('Release package validated:', TITLE, 'published:', publish)
+
+
+if __name__ == '__main__':
+    main()
