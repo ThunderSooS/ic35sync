@@ -34,24 +34,25 @@ jobs:
             choco install innosetup --yes --no-progress
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           }
-      - name: Build EXE, validate installer and package matching source
+      - name: Build onedir app, validate installer and package matching source
         run: |
           python scripts/build_beta_package.py
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Upload checked beta package
+      - name: Upload checked onedir beta package
         uses: actions/upload-artifact@v4
         with:
-          name: IC35-Sync-Beta-3.4.0b7-main-${{ github.run_number }}
+          name: IC35-Sync-Beta-3.4.0b7-onedir-main-${{ github.run_number }}
           retention-days: 30
           if-no-files-found: error
           path: |
-            dist/IC35Thunderbird.exe
+            dist/IC35Thunderbird/
             release/IC35-Sync-Beta-3.4.0b7-Setup.exe
             release/IC35-Sync-Beta-3.4.0b7-Source.zip
             release/IC35-Thunderbird-Bridge-3.4.0b5.xpi
             release/BUILD-MANIFEST.json
             release/SHA256SUMS.txt
             release/BUILD-CHECKOUT.diff
+            release/START-HERE.txt
             smoke-results.json
             smoke-results-exe.json
             LICENSE

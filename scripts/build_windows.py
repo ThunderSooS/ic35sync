@@ -1,4 +1,4 @@
-"""Build a self-contained Windows app without cloud credentials or runtime data."""
+"""Build a self-contained Windows folder app without credentials or runtime data."""
 import importlib.metadata
 from pathlib import Path
 import shutil
@@ -29,7 +29,8 @@ for name, source in [('Python-LICENSE.txt', Path(sys.base_prefix) / 'LICENSE.txt
     if source.is_file(): shutil.copyfile(source, licenses / name)
 with (ROOT / 'build-requirements.txt').open('w') as out:
     subprocess.run([sys.executable, '-m', 'pip', 'freeze'], stdout=out, check=True)
-subprocess.run([sys.executable, '-m', 'PyInstaller', '--noconfirm', '--clean', '--onefile', '--windowed',
+subprocess.run([sys.executable, '-m', 'PyInstaller', '--noconfirm', '--clean', '--onedir', '--windowed',
+               '--contents-directory', '_internal',
                '--paths', str(TKLIB.parent),
                '--hidden-import=tkinter', '--hidden-import=_tkinter',
                '--add-data', f'{TKLIB};tkinter',
@@ -40,4 +41,8 @@ subprocess.run([sys.executable, '-m', 'PyInstaller', '--noconfirm', '--clean', '
                '--collect-all', 'radicale', '--collect-all', 'tzdata', '--collect-all', 'passlib',
                '--copy-metadata', 'libpass', '--recursive-copy-metadata', 'radicale',
                str(ROOT / 'desktop_entry.py')], cwd=ROOT, check=True)
-subprocess.run([sys.executable, str(ROOT / 'scripts/smoke_windows.py')], cwd=ROOT, check=True, timeout=120)
+bundle = ROOT / 'dist/IC35Thunderbird'
+if not (bundle / '_internal').is_dir():
+    raise RuntimeError('Onedir runtime folder missing')
+subprocess.run([sys.executable, str(ROOT / 'scripts/smoke_windows.py'),
+                str(bundle / 'IC35Thunderbird.exe')], cwd=ROOT, check=True, timeout=120)

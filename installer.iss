@@ -35,7 +35,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 [Tasks]
 Name: desktopicon; Description: "Desktop-Verknüpfung / Desktop shortcut"; Flags: unchecked
 [Files]
-Source: "dist\IC35Thunderbird.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "dist\IC35Thunderbird\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "release\IC35-Thunderbird-Bridge-3.4.0b5.xpi"; DestDir: "{app}"; Flags: ignoreversion
 Source: "LICENSE"; DestDir: "{app}"; Flags: ignoreversion
 Source: "README.md"; DestDir: "{app}"; Flags: ignoreversion

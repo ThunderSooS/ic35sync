@@ -14,15 +14,19 @@ import bridge
 from dav_sync import DAV
 from dav_model import render
 
-exe = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else ROOT / 'dist/IC35Thunderbird.exe'
+exe = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else ROOT / 'dist/IC35Thunderbird/IC35Thunderbird.exe'
 with tempfile.TemporaryDirectory(prefix='ic35-package-') as tmp:
     tmp = Path(tmp)
     result = tmp / 'check.json'
+    started = time.monotonic()
     proc = subprocess.run([str(exe), '--package-check', str(result)], timeout=60)
+    package_check_seconds = time.monotonic() - started
     if proc.returncode or not result.exists():
         error = Path(str(result) + '.error')
         raise RuntimeError(error.read_text() if error.exists() else 'Package check did not complete')
     checks = json.loads(result.read_text())
+    checks['package_check_seconds'] = round(package_check_seconds, 3)
+    checks['timing_scope'] = 'complete synthetic package check, not time to first visible window'
     bridge.ensure_radicale_storage(tmp / 'dav')
     with socket.socket() as sock:
         sock.bind(('127.0.0.1', 0)); port = sock.getsockname()[1]
